@@ -1,0 +1,135 @@
+-- migration.sql
+-- SQL equivalent of JOB_NXS_T26_Payment_Status_SAP_Coupa
+-- Transformations: FILTER + JOIN x2 + RENAME + net_amount calculation
+
+-- Input: raw SAP data
+CREATE TABLE stg_sap_input (
+    bukrs               TEXT,
+    belnr               TEXT,
+    sap_vendor_id       TEXT,
+    wrbtr               REAL,
+    mwskz               TEXT,
+    bldat               TEXT,
+    zfbdt               TEXT,
+    zlsch               TEXT,
+    augdt               TEXT,
+    payment_status_raw  TEXT,
+    waers               TEXT
+);
+
+INSERT INTO stg_sap_input VALUES
+    ('NXS', 'SAP-2026-00001', 'SAP_V002', 42838.23, 'TX0', '20260125', '20260206', 'T', '20260226', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00002', 'SAP_V001', 43390.94, 'TX10', '20260117', '20260203', 'T', '20260109', 'BLOCKED', 'EUR'),
+    ('NXS', 'SAP-2026-00003', 'SAP_V005', 19316.25, 'TX0', '20260301', '20260121', 'T', '20260117', 'PENDING', 'EUR'),
+    ('NXS', 'SAP-2026-00004', 'SAP_V004', 22943.81, 'TX5', '20260220', '20260301', 'T', '20260108', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00005', 'SAP_V004', 41788.47, 'TX20', '20260220', '20260117', 'T', '20260226', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00006', 'SAP_V003', 8551.38, 'TX5', '20260130', '20260114', 'T', '20260107', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00007', 'SAP_V002', 18085.9, 'TX10', '20260119', '20260212', 'T', '20260217', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00008', 'SAP_V009', 33673.67, 'TX0', '20260128', '20260215', 'T', '20260205', 'BLOCKED', 'EUR'),
+    ('NXS', 'SAP-2026-00009', 'SAP_V002', 35240.11, 'TX20', '20260214', '20260121', 'T', '20260110', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00010', 'SAP_V010', 34335.61, 'TX10', '20260216', '20260116', 'T', '20260118', 'BLOCKED', 'EUR'),
+    ('NXS', 'SAP-2026-00011', 'SAP_V007', 4034.42, 'TX0', '20260220', '20260117', 'T', '20260119', 'BLOCKED', 'EUR'),
+    ('NXS', 'SAP-2026-00012', 'SAP_V001', 31931.43, 'TX20', '20260205', '20260126', 'T', '20260208', 'PENDING', 'EUR'),
+    ('NXS', 'SAP-2026-00013', 'SAP_V001', 26939.92, 'TX20', '20260212', '20260109', 'T', '20260114', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00014', 'SAP_V002', 12618.14, 'TX0', '20260215', '20260212', 'T', '20260215', 'CANCELLED', 'EUR'),
+    ('NXS', 'SAP-2026-00015', 'SAP_V004', 23381.88, 'TX20', '20260201', '20260211', 'T', '20260122', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00016', 'SAP_V004', 13862.42, 'TX10', '20260110', '20260120', 'T', '20260114', 'CANCELLED', 'EUR'),
+    ('NXS', 'SAP-2026-00017', 'SAP_V009', 46306.86, 'TX0', '20260113', '20260130', 'T', '20260213', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00018', 'SAP_V010', 34564.02, 'TX5', '20260119', '20260121', 'T', '20260210', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00019', 'SAP_V001', 11370.95, 'TX10', '20260114', '20260301', 'T', '20260224', 'CANCELLED', 'EUR'),
+    ('NXS', 'SAP-2026-00020', 'SAP_V009', 16552.0, 'TX10', '20260104', '20260218', 'T', '20260117', 'PENDING', 'EUR'),
+    ('NXS', 'SAP-2026-00021', 'SAP_V004', 38531.52, 'TX0', '20260207', '20260301', 'T', '20260202', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00022', 'SAP_V009', 3268.93, 'TX0', '20260217', '20260105', 'T', '20260201', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00023', 'SAP_V007', 41179.23, 'TX20', '20260204', '20260101', 'T', '20260117', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00024', 'SAP_V004', 40349.77, 'TX10', '20260104', '20260130', 'T', '20260227', 'PENDING', 'EUR'),
+    ('NXS', 'SAP-2026-00025', 'SAP_V008', 20357.66, 'TX20', '20260217', '20260209', 'T', '20260228', 'CANCELLED', 'EUR'),
+    ('NXS', 'SAP-2026-00026', 'SAP_V010', 3776.34, 'TX10', '20260121', '20260206', 'T', '20260224', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00027', 'SAP_V005', 45700.24, 'TX10', '20260104', '20260107', 'T', '20260104', 'CANCELLED', 'EUR'),
+    ('NXS', 'SAP-2026-00028', 'SAP_V001', 28575.41, 'TX5', '20260104', '20260105', 'T', '20260106', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00029', 'SAP_V003', 36036.76, 'TX10', '20260207', '20260204', 'T', '20260210', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00030', 'SAP_V007', 11025.01, 'TX20', '20260131', '20260114', 'T', '20260128', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00031', 'SAP_V006', 25211.95, 'TX20', '20260202', '20260202', 'T', '20260223', 'PENDING', 'EUR'),
+    ('NXS', 'SAP-2026-00032', 'SAP_V005', 44291.82, 'TX5', '20260228', '20260117', 'T', '20260118', 'BLOCKED', 'EUR'),
+    ('NXS', 'SAP-2026-00033', 'SAP_V003', 32321.17, 'TX20', '20260224', '20260109', 'T', '20260103', 'CANCELLED', 'EUR'),
+    ('NXS', 'SAP-2026-00034', 'SAP_V004', 7572.14, 'TX0', '20260203', '20260301', 'T', '20260101', 'PENDING', 'EUR'),
+    ('NXS', 'SAP-2026-00035', 'SAP_V006', 7411.7, 'TX5', '20260111', '20260123', 'T', '20260122', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00036', 'SAP_V002', 37376.95, 'TX20', '20260104', '20260226', 'T', '20260219', 'PENDING', 'EUR'),
+    ('NXS', 'SAP-2026-00037', 'SAP_V002', 27179.38, 'TX20', '20260202', '20260105', 'T', '20260109', 'PENDING', 'EUR'),
+    ('NXS', 'SAP-2026-00038', 'SAP_V007', 37477.18, 'TX0', '20260106', '20260226', 'T', '20260210', 'BLOCKED', 'EUR'),
+    ('NXS', 'SAP-2026-00039', 'SAP_V002', 21707.47, 'TX5', '20260224', '20260116', 'T', '20260117', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00040', 'SAP_V006', 29384.88, 'TX0', '20260112', '20260124', 'T', '20260111', 'PENDING', 'EUR'),
+    ('NXS', 'SAP-2026-00041', 'SAP_V006', 18418.82, 'TX5', '20260105', '20260119', 'T', '20260217', 'BLOCKED', 'EUR'),
+    ('NXS', 'SAP-2026-00042', 'SAP_V010', 49867.63, 'TX5', '20260208', '20260111', 'T', '20260129', 'BLOCKED', 'EUR'),
+    ('NXS', 'SAP-2026-00043', 'SAP_V005', 7347.42, 'TX10', '20260105', '20260129', 'T', '20260205', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00044', 'SAP_V001', 24929.03, 'TX20', '20260213', '20260223', 'T', '20260215', 'PENDING', 'EUR'),
+    ('NXS', 'SAP-2026-00045', 'SAP_V008', 37911.22, 'TX20', '20260225', '20260204', 'T', '20260128', 'CANCELLED', 'EUR'),
+    ('NXS', 'SAP-2026-00046', 'SAP_V009', 43124.59, 'TX10', '20260116', '20260215', 'T', '20260205', 'CANCELLED', 'EUR'),
+    ('NXS', 'SAP-2026-00047', 'SAP_V002', 8065.65, 'TX0', '20260126', '20260120', 'T', '20260101', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00048', 'SAP_V007', 8419.11, 'TX10', '20260108', '20260209', 'T', '20260108', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00049', 'SAP_V002', 34183.82, 'TX20', '20260302', '20260221', 'T', '20260105', 'PENDING', 'EUR'),
+    ('NXS', 'SAP-2026-00050', 'SAP_V009', 30022.25, 'TX20', '20260226', '20260211', 'T', '20260302', 'CANCELLED', 'EUR'),
+    ('NXS', 'SAP-2026-00051', 'SAP_V005', 19545.98, 'TX10', '20260206', '20260203', 'T', '20260226', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00052', 'SAP_V010', 29996.48, 'TX10', '20260116', '20260101', 'T', '20260214', 'PENDING', 'EUR'),
+    ('NXS', 'SAP-2026-00053', 'SAP_V006', 23668.47, 'TX10', '20260207', '20260212', 'T', '20260227', 'CANCELLED', 'EUR'),
+    ('NXS', 'SAP-2026-00054', 'SAP_V010', 12945.0, 'TX20', '20260208', '20260222', 'T', '20260110', 'PENDING', 'EUR'),
+    ('NXS', 'SAP-2026-00055', 'SAP_V004', 27884.68, 'TX10', '20260103', '20260205', 'T', '20260204', 'BLOCKED', 'EUR'),
+    ('NXS', 'SAP-2026-00056', 'SAP_V002', 47150.33, 'TX10', '20260209', '20260120', 'T', '20260103', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00057', 'SAP_V001', 34174.03, 'TX0', '20260106', '20260301', 'T', '20260223', 'PENDING', 'EUR'),
+    ('NXS', 'SAP-2026-00058', 'SAP_V004', 6170.31, 'TX10', '20260127', '20260212', 'T', '20260124', 'PAID', 'EUR'),
+    ('NXS', 'SAP-2026-00059', 'SAP_V005', 44297.03, 'TX20', '20260212', '20260107', 'T', '20260207', 'PENDING', 'EUR'),
+    ('NXS', 'SAP-2026-00060', 'SAP_V002', 37668.45, 'TX0', '20260207', '20260302', 'T', '20260205', 'BLOCKED', 'EUR');
+
+-- Reference: vendor table
+CREATE TABLE stg_vendor_ref (
+    sap_vendor_id   TEXT,
+    vendor_name     TEXT,
+    country_code    TEXT,
+    payment_terms   TEXT
+);
+
+INSERT INTO stg_vendor_ref VALUES
+    ('SAP_V001', 'Acme Corp', 'FR', 'NET30'),
+    ('SAP_V002', 'GlobalTech', 'DE', 'NET60'),
+    ('SAP_V003', 'NexusPay', 'US', 'NET15'),
+    ('SAP_V004', 'FastLogistics', 'FR', 'NET30'),
+    ('SAP_V005', 'DataSystems', 'GB', 'NET45'),
+    ('SAP_V006', 'CloudBase', 'DE', 'NET60'),
+    ('SAP_V007', 'PayRoute', 'US', 'NET30'),
+    ('SAP_V008', 'FinServ', 'FR', 'NET15'),
+    ('SAP_V009', 'TechBridge', 'GB', 'NET45'),
+    ('SAP_V010', 'CoreSupply', 'DE', 'NET30');
+
+-- Reference: tax rates
+CREATE TABLE stg_tax_rates (
+    tax_code    TEXT,
+    tax_rate    REAL
+);
+
+INSERT INTO stg_tax_rates VALUES
+    ('TX10', 0.10),
+    ('TX20', 0.20),
+    ('TX0',  0.00),
+    ('TX5',  0.05);
+
+-- Output: stg_output (what Validation Agent compares against talend_reference.csv)
+CREATE TABLE stg_output AS
+SELECT
+    s.belnr                              AS invoice_id,
+    s.sap_vendor_id                      AS vendor_id,
+    v.vendor_name                        AS vendor_name,
+    v.country_code                       AS country_code,
+    v.payment_terms                      AS payment_terms,
+    s.payment_status_raw                 AS payment_status,
+    s.waers                              AS currency,
+    s.wrbtr                              AS gross_amount,
+    s.mwskz                              AS tax_code,
+    t.tax_rate                           AS tax_rate,
+    ROUND(s.wrbtr * (1 - t.tax_rate), 2) AS net_amount,
+    s.bldat                              AS posting_date,
+    s.zfbdt                              AS payment_date,
+    s.zlsch                              AS payment_method
+FROM stg_sap_input s
+LEFT JOIN stg_vendor_ref v ON s.sap_vendor_id = v.sap_vendor_id
+LEFT JOIN stg_tax_rates  t ON s.mwskz = t.tax_code
+WHERE s.payment_status_raw IN ('PAID', 'PENDING')
+LIMIT 50;
