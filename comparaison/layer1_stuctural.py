@@ -1,8 +1,7 @@
 """
-Layer 1 – Structural Validation
+Layer 1 – Structural Validation  (pure pandas)
 
-Gate layer: if ANY check here fails, the engine stops.
-No severity — every failure is blocking.
+Gate layer: if ANY check fails, the engine stops immediately.
 
 Checks:
   1. Column count
@@ -15,22 +14,21 @@ from __future__ import annotations
 
 import time
 
+import pandas as pd
+
 from core.models import CheckResult, LayerResult, Status, ValidationConfig
-from core.normalize import SQLiteLoader, SOURCE_TABLE, TARGET_TABLE
 
 LAYER = "1_structural"
 
 
-def run(db: SQLiteLoader, config: ValidationConfig) -> LayerResult:
+def run(src: pd.DataFrame, tgt: pd.DataFrame, config: ValidationConfig) -> LayerResult:
     t0 = time.perf_counter()
     result = LayerResult(layer_name=LAYER, status=Status.PASSED)
 
-    src_cols  = db.get_columns(SOURCE_TABLE)
-    tgt_cols  = db.get_columns(TARGET_TABLE)
-    src_types = db.get_dtypes(SOURCE_TABLE)
-    tgt_types = db.get_dtypes(TARGET_TABLE)
-    src_set   = set(src_cols)
-    tgt_set   = set(tgt_cols)
+    src_cols = list(src.columns)
+    tgt_cols = list(tgt.columns)
+    src_set  = set(src_cols)
+    tgt_set  = set(tgt_cols)
 
     # ── 1. Column count ──────────────────────────────────────────────
     t = time.perf_counter()
@@ -42,7 +40,8 @@ def run(db: SQLiteLoader, config: ValidationConfig) -> LayerResult:
         message=(
             f"Both datasets have {len(src_cols)} columns."
             if passed else
-            f"Column count mismatch: {config.source_label}={len(src_cols)}, "
+            f"Column count mismatch: "
+            f"{config.source_label}={len(src_cols)}, "
             f"{config.target_label}={len(tgt_cols)}."
         ),
         details={"source_count": len(src_cols), "target_count": len(tgt_cols)},
@@ -71,23 +70,23 @@ def run(db: SQLiteLoader, config: ValidationConfig) -> LayerResult:
         duration_ms=(time.perf_counter() - t) * 1000,
     ))
 
-    # Stop here — further type / null checks are meaningless if columns don't align
+    # Stop early — type/null checks are meaningless with different columns
     if not result.passed:
         result.duration_ms = (time.perf_counter() - t0) * 1000
         return result
 
-    common_cols = src_set & tgt_set
+    common = src_set & tgt_set
 
     # ── 3. Data type compatibility ───────────────────────────────────
     t = time.perf_counter()
     mismatches: dict = {}
-    for col in common_cols:
-        sf = _type_family(src_types.get(col, ""))
-        tf = _type_family(tgt_types.get(col, ""))
+    for col in common:
+        sf = _dtype_family(src[col].dtype)
+        tf = _dtype_family(tgt[col].dtype)
         if sf != tf:
             mismatches[col] = {
-                "source_type": src_types.get(col),
-                "target_type": tgt_types.get(col),
+                "source_dtype": str(src[col].dtype),
+                "target_dtype": str(tgt[col].dtype),
             }
     passed = not mismatches
     result.add(CheckResult(
@@ -95,22 +94,22 @@ def run(db: SQLiteLoader, config: ValidationConfig) -> LayerResult:
         check_name="data_types",
         status=Status.PASSED if passed else Status.FAILED,
         message=(
-            "All column data types are compatible."
+            "All column dtypes are compatible."
             if passed else
-            f"Type mismatch in {len(mismatches)} column(s): {list(mismatches.keys())}."
+            f"Dtype mismatch in {len(mismatches)} column(s): {list(mismatches.keys())}."
         ),
-        details={"type_mismatches": mismatches},
+        details={"mismatches": mismatches},
         duration_ms=(time.perf_counter() - t) * 1000,
     ))
 
-    # ── 4. Null count per column ─────────────────────────────────────
+    # ── 4. Null counts per column ────────────────────────────────────
     t = time.perf_counter()
     null_issues: dict = {}
-    for col in common_cols:
-        src_nulls = db.scalar(f'SELECT COUNT(*) FROM {SOURCE_TABLE} WHERE "{col}" IS NULL')
-        tgt_nulls = db.scalar(f'SELECT COUNT(*) FROM {TARGET_TABLE} WHERE "{col}" IS NULL')
-        if src_nulls != tgt_nulls:
-            null_issues[col] = {"source_nulls": src_nulls, "target_nulls": tgt_nulls}
+    for col in common:
+        sn = int(src[col].isna().sum())
+        tn = int(tgt[col].isna().sum())
+        if sn != tn:
+            null_issues[col] = {"source_nulls": sn, "target_nulls": tn}
     passed = not null_issues
     result.add(CheckResult(
         layer=LAYER,
@@ -146,23 +145,16 @@ def run(db: SQLiteLoader, config: ValidationConfig) -> LayerResult:
     return result
 
 
-# ─────────────────────────────────────────────
-# SQLite type families
-# ─────────────────────────────────────────────
+# pandas dtype families
 
-_FAMILIES: dict[str, set[str]] = {
-    "integer": {"INTEGER", "INT", "BIGINT", "SMALLINT", "TINYINT", "INT2", "INT8"},
-    "float":   {"REAL", "DOUBLE", "FLOAT", "NUMERIC", "DECIMAL"},
-    "text":    {"TEXT", "VARCHAR", "NVARCHAR", "CHAR", "CLOB", "NCHAR", ""},
-    "blob":    {"BLOB"},
-    "boolean": {"BOOLEAN"},
-}
-
-
-def _type_family(dtype: str) -> str:
-    d = dtype.upper().split("(")[0].strip()
-    for family, members in _FAMILIES.items():
-        if d in members:
-            return family
-    # SQLite type affinity: TEXT is the fallback
-    return "text"
+def _dtype_family(dtype) -> str:
+    kind = dtype.kind   # 'i'=int, 'u'=uint, 'f'=float, 'O'=object, 'b'=bool, 'M'=datetime
+    return {
+        "i": "integer",
+        "u": "integer",
+        "f": "float",
+        "O": "string",
+        "b": "boolean",
+        "M": "datetime",
+        "m": "timedelta",
+    }.get(kind, str(dtype))

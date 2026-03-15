@@ -1,4 +1,4 @@
-invoices_id,vendor_id,vendor_name,country_code,payment_terms,payment_status,currency,gross_amount,tax_code,tax_rate,net_amount,posting_date,payment_date,payment_method
+invoice_id,vendor_id,vendor_name,country_code,payment_terms,payment_status,currency,gross_amount,tax_code,tax_rate,net_amount,posting_date,payment_date,payment_method
 SAP-2026-00001,SAP_V002,GlobalTech,DE,NET60,PAID,EUR,42838.23,TX0,,,20260125,20260206,T
 SAP-2026-00003,SAP_V005,DataSystems,GB,NET45,PENDING,EUR,19316.25,TX0,,,20260301,20260121,T
 SAP-2026-00004,SAP_V004,FastLogistics,FR,NET30,PAID,EUR,22943.81,TX5,,,20260220,20260301,T

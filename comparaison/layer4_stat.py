@@ -1,47 +1,33 @@
 """
-Layer 4 – Statistical / Distribution Validation
+Layer 4 – Statistical / Distribution Validation  (pure pandas)
 
-All statistics computed in Python (pandas) because SQLite has no
-built-in STDDEV or QUANTILE_CONT.
+All stats computed directly on the DataFrame — no SQL, no external libs.
 
-Checks (per numeric column):
-  - Min / Max
-  - Mean
-  - Standard deviation
-  - Null ratio
+Checks:
+  - Per-column: min, max, mean, stddev, percentiles (P50/P95/P99)
+  - Null ratio per column
   - Cardinality (distinct count)
-  - Percentiles (P50, P95, P99 by default)
-
-Plus:
-  - Distribution confidence score (0–1)
+  - Distribution confidence score
 """
 from __future__ import annotations
 
 import time
-from typing import Optional
 
 import pandas as pd
-import numpy as np
 
 from core.models import CheckResult, LayerResult, Status, ValidationConfig
-from core.normalize import SQLiteLoader, SOURCE_TABLE, TARGET_TABLE
 
 LAYER = "4_statistical"
 
 
-def run(db: SQLiteLoader, config: ValidationConfig) -> LayerResult:
+def run(src: pd.DataFrame, tgt: pd.DataFrame, config: ValidationConfig) -> LayerResult:
     t0 = time.perf_counter()
     result = LayerResult(layer_name=LAYER, status=Status.PASSED)
 
-    src_df = db.dataframe(SOURCE_TABLE)
-    tgt_df = db.dataframe(TARGET_TABLE)
-    src_count = len(src_df)
-    tgt_count = len(tgt_df)
-
-    common_cols = sorted(set(src_df.columns) & set(tgt_df.columns))
+    common_cols  = sorted(set(src.columns) & set(tgt.columns))
     numeric_cols = [
         c for c in common_cols
-        if pd.api.types.is_numeric_dtype(src_df[c]) or pd.api.types.is_numeric_dtype(tgt_df[c])
+        if pd.api.types.is_numeric_dtype(src[c]) or pd.api.types.is_numeric_dtype(tgt[c])
     ]
 
     if not numeric_cols:
@@ -49,7 +35,7 @@ def run(db: SQLiteLoader, config: ValidationConfig) -> LayerResult:
             layer=LAYER,
             check_name="statistical_profile",
             status=Status.SKIPPED,
-            message="No numeric columns detected — statistical checks skipped.",
+            message="No numeric columns — statistical checks skipped.",
             skipped_reason="Statistical validation only applies to numeric columns.",
         ))
         result.duration_ms = (time.perf_counter() - t0) * 1000
@@ -57,25 +43,25 @@ def run(db: SQLiteLoader, config: ValidationConfig) -> LayerResult:
 
     # ── Per-column stat profile ──────────────────────────────────────
     t = time.perf_counter()
-    all_stat_issues: list[dict] = []
-    col_profiles: dict = {}
+    all_issues:   list[dict] = []
+    col_profiles: dict       = {}
 
     for col in numeric_cols:
-        src_series = pd.to_numeric(src_df[col], errors="coerce")
-        tgt_series = pd.to_numeric(tgt_df[col], errors="coerce")
+        ss = pd.to_numeric(src[col], errors="coerce")
+        ts = pd.to_numeric(tgt[col], errors="coerce")
 
-        src_stats = _compute_stats(src_series, src_count, config.percentiles)
-        tgt_stats = _compute_stats(tgt_series, tgt_count, config.percentiles)
-
+        src_stats = _compute_stats(ss, len(src), config.percentiles)
+        tgt_stats = _compute_stats(ts, len(tgt), config.percentiles)
         col_issues = _compare_stats(col, src_stats, tgt_stats, config.stat_tolerance)
-        all_stat_issues.extend(col_issues)
+
+        all_issues.extend(col_issues)
         col_profiles[col] = {
             "source": src_stats,
             "target": tgt_stats,
             "issues": col_issues,
         }
 
-    passed = not all_stat_issues
+    passed = not all_issues
     result.add(CheckResult(
         layer=LAYER,
         check_name="per_column_statistics",
@@ -83,21 +69,20 @@ def run(db: SQLiteLoader, config: ValidationConfig) -> LayerResult:
         message=(
             f"Statistical profiles match for all {len(numeric_cols)} numeric column(s)."
             if passed else
-            f"Statistical deviation in {len(all_stat_issues)} stat(s) across {len(numeric_cols)} column(s)."
+            f"Statistical deviation in {len(all_issues)} stat(s)."
         ),
         details={
             "tolerance": config.stat_tolerance,
             "columns_checked": numeric_cols,
             "column_profiles": col_profiles,
-            "issues": all_stat_issues,
+            "issues": all_issues,
         },
         duration_ms=(time.perf_counter() - t) * 1000,
     ))
 
     # ── Null ratio ───────────────────────────────────────────────────
     t = time.perf_counter()
-    null_issues = _check_null_ratios(src_df, tgt_df, common_cols,
-                                     src_count, tgt_count, config.stat_tolerance)
+    null_issues = _check_null_ratios(src, tgt, common_cols, config.stat_tolerance)
     passed = not null_issues
     result.add(CheckResult(
         layer=LAYER,
@@ -114,14 +99,14 @@ def run(db: SQLiteLoader, config: ValidationConfig) -> LayerResult:
 
     # ── Cardinality ──────────────────────────────────────────────────
     t = time.perf_counter()
-    card_issues = _check_cardinality(src_df, tgt_df, common_cols, config.stat_tolerance)
+    card_issues = _check_cardinality(src, tgt, common_cols, config.stat_tolerance)
     passed = not card_issues
     result.add(CheckResult(
         layer=LAYER,
         check_name="cardinality",
         status=Status.PASSED if passed else Status.FAILED,
         message=(
-            "Cardinality (distinct values) matches for all columns."
+            "Cardinality matches for all columns."
             if passed else
             f"Cardinality mismatch in {len(card_issues)} column(s)."
         ),
@@ -137,7 +122,7 @@ def run(db: SQLiteLoader, config: ValidationConfig) -> LayerResult:
         layer=LAYER,
         check_name="distribution_confidence",
         status=Status.PASSED if passed else Status.FAILED,
-        message=f"Distribution confidence score: {score:.1%} ({'≥' if passed else '<'} 95% threshold).",
+        message=f"Distribution confidence: {score:.1%} ({'≥' if passed else '<'} 95% threshold).",
         details={"score": round(score, 4), "threshold": 0.95},
         duration_ms=(time.perf_counter() - t) * 1000,
     ))
@@ -145,41 +130,32 @@ def run(db: SQLiteLoader, config: ValidationConfig) -> LayerResult:
     result.duration_ms = (time.perf_counter() - t0) * 1000
     return result
 
-
-# ─────────────────────────────────────────────
-# Stat computation (all pandas — no SQLite ext)
-# ─────────────────────────────────────────────
+# Helpers
 
 def _compute_stats(series: pd.Series, total_rows: int, percentiles: list[float]) -> dict:
     clean = series.dropna()
     stats: dict = {
-        "min":        float(clean.min())    if len(clean) else None,
-        "max":        float(clean.max())    if len(clean) else None,
-        "mean":       float(clean.mean())   if len(clean) else None,
-        "stddev":     float(clean.std())    if len(clean) else None,
+        "min":        float(clean.min())  if len(clean) else None,
+        "max":        float(clean.max())  if len(clean) else None,
+        "mean":       float(clean.mean()) if len(clean) else None,
+        "stddev":     float(clean.std())  if len(clean) else None,
         "non_null":   int(len(clean)),
-        "null_ratio": round(1 - len(clean) / total_rows, 6) if total_rows > 0 else 0,
+        "null_ratio": round(1 - len(clean) / total_rows, 6) if total_rows else 0,
     }
     for p in percentiles:
-        key = f"p{int(p * 100)}"
-        stats[key] = float(clean.quantile(p)) if len(clean) else None
+        stats[f"p{int(p * 100)}"] = float(clean.quantile(p)) if len(clean) else None
     return stats
 
 
-def _compare_stats(
-    col: str,
-    src: dict,
-    tgt: dict,
-    tolerance: float,
-) -> list[dict]:
+def _compare_stats(col: str, src: dict, tgt: dict, tolerance: float) -> list[dict]:
     issues = []
-    stat_keys = ["min", "max", "mean", "stddev"] + [k for k in src if k.startswith("p")]
-    for key in stat_keys:
+    keys = ["min", "max", "mean", "stddev"] + [k for k in src if k.startswith("p")]
+    for key in keys:
         sv, tv = src.get(key), tgt.get(key)
         if sv is None or tv is None:
             continue
         try:
-            base = abs(float(sv)) if float(sv) != 0 else 1.0
+            base     = abs(float(sv)) if float(sv) != 0 else 1.0
             rel_diff = abs(float(sv) - float(tv)) / base
             if rel_diff > tolerance:
                 issues.append({
@@ -194,17 +170,13 @@ def _compare_stats(
 
 
 def _check_null_ratios(
-    src_df: pd.DataFrame,
-    tgt_df: pd.DataFrame,
-    cols: list[str],
-    src_count: int,
-    tgt_count: int,
-    tolerance: float,
+    src: pd.DataFrame, tgt: pd.DataFrame,
+    cols: list[str], tolerance: float,
 ) -> list[dict]:
     issues = []
     for col in cols:
-        sr = src_df[col].isna().sum() / src_count if src_count else 0
-        tr = tgt_df[col].isna().sum() / tgt_count if tgt_count else 0
+        sr = src[col].isna().mean()
+        tr = tgt[col].isna().mean()
         if abs(sr - tr) > tolerance:
             issues.append({
                 "column": col,
@@ -216,15 +188,13 @@ def _check_null_ratios(
 
 
 def _check_cardinality(
-    src_df: pd.DataFrame,
-    tgt_df: pd.DataFrame,
-    cols: list[str],
-    tolerance: float,
+    src: pd.DataFrame, tgt: pd.DataFrame,
+    cols: list[str], tolerance: float,
 ) -> list[dict]:
     issues = []
     for col in cols:
-        sc = src_df[col].nunique()
-        tc = tgt_df[col].nunique()
+        sc = src[col].nunique()
+        tc = tgt[col].nunique()
         if sc != tc:
             base = max(sc, 1)
             if abs(sc - tc) / base > tolerance:
@@ -240,8 +210,7 @@ def _check_cardinality(
 def _confidence_score(col_profiles: dict) -> float:
     total, ok = 0, 0
     for data in col_profiles.values():
-        n_stats = len([k for k in data.get("source", {})
-                       if k not in ("non_null", "null_ratio")])
+        n_stats  = len([k for k in data.get("source", {}) if k not in ("non_null", "null_ratio")])
         n_issues = len(data.get("issues", []))
         total += n_stats
         ok    += max(0, n_stats - n_issues)

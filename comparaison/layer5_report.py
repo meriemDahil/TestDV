@@ -11,15 +11,13 @@ from __future__ import annotations
 
 import json
 import time
-import urllib.request #
+import urllib.request
 import urllib.error
 
 from core.models import ValidationReport, LayerResult, Status
 
 
-# ─────────────────────────────────────────────
 # Summary builder
-# ─────────────────────────────────────────────
 
 def build_summary(report: ValidationReport) -> dict:
     total = passed = failed = skipped = 0
@@ -74,9 +72,7 @@ def write_json_report(report: ValidationReport, path: str) -> None:
     print(f"[report] JSON written → {path}")
 
 
-# ─────────────────────────────────────────────
 # AI narrative
-# ─────────────────────────────────────────────
 
 _SYSTEM = """
 You are a senior data engineer writing a concise validation summary for a client migration report.
@@ -127,9 +123,7 @@ def generate_ai_narrative(report: ValidationReport, api_key: str = "") -> str:
         return f"[AI narrative unavailable — {e}]"
 
 
-# ─────────────────────────────────────────────
 # Console printer
-# ─────────────────────────────────────────────
 
 def print_console_summary(report: ValidationReport) -> None:
     sep = "─" * 60

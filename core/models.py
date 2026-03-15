@@ -1,8 +1,7 @@
 """
 Validation Engine – Core Data Models
-
-Status is binary: PASSED or FAILED.
-No severity levels. No warnings.
+Binary status: PASSED / FAILED / SKIPPED only.
+pure Python dataclasses.
 """
 from __future__ import annotations
 
@@ -16,21 +15,18 @@ from typing import Any
 class Status(str, Enum):
     PASSED  = "PASSED"
     FAILED  = "FAILED"
-    SKIPPED = "SKIPPED"   # used when we lack required info (e.g. no PK known)
+    SKIPPED = "SKIPPED"  # missing config — not a failure
 
 
 @dataclass
 class CheckResult:
-    """Result of one atomic validation check."""
-    layer:      str
-    check_name: str
-    status:     Status
-    message:    str
-    details:    dict[str, Any] = field(default_factory=dict)
-    duration_ms: float = 0.0
-
-    # If status is SKIPPED, this explains what info we'd need to run the check.
-    skipped_reason: str = ""
+    layer:          str
+    check_name:     str
+    status:         Status
+    message:        str
+    details:        dict[str, Any] = field(default_factory=dict)
+    duration_ms:    float = 0.0
+    skipped_reason: str   = ""   # set when status == SKIPPED
 
 
 @dataclass
@@ -68,60 +64,59 @@ class ColumnTolerance:
 
 @dataclass
 class BusinessRule:
-    """Custom SQL invariant. Use {source} and {target} as table placeholders."""
-    name:       str
-    expression: str    # e.g. "SELECT SUM(revenue) FROM {table}"
-    tolerance:  float = 0.0
+    """
+    Custom invariant evaluated as a pandas expression.
+    Use a callable: rule_fn(df) -> scalar value.
+    Source and target values are compared within tolerance.
+    """
+    name:      str
+    rule_fn:   Any    # callable(df: pd.DataFrame) -> scalar
+    tolerance: float = 0.0
 
 
 @dataclass
 class ValidationConfig:
-
-    
-    # Paths
+    # ── Input paths (optional if DataFrames passed directly) ────────
     talend_path: str = ""
     sql_path:    str = ""
     run_id:      str = ""
     source_label: str = "Talend"
     target_label: str = "SQL"
 
-    # Primary key columns — if empty, row-aligned checks are SKIPPED
-    # and the engine will tell you what you're missing.
+    # ── Row alignment ────────────────────────────────────────────────
+    # Without a primary key, row-level diff is SKIPPED.
     primary_key: list[str] = field(default_factory=list)
 
-    # Structural layer
+    # ── Structural layer ─────────────────────────────────────────────
     check_column_order: bool = False
 
-    # Business layer
-    aggregation_columns: list[str] = field(default_factory=list)
-    group_by_columns:    list[str] = field(default_factory=list)
+    # ── Business layer ───────────────────────────────────────────────
+    aggregation_columns: list[str]          = field(default_factory=list)
+    group_by_columns:    list[str]          = field(default_factory=list)
     business_rules:      list[BusinessRule] = field(default_factory=list)
     column_tolerances:   list[ColumnTolerance] = field(default_factory=list)
     default_abs_tolerance: float = 1e-6
     default_rel_tolerance: float = 1e-4
 
-    # Statistical layer
-    percentiles:     list[float] = field(default_factory=lambda: [0.50, 0.95, 0.99])
-    stat_tolerance:  float = 0.01
+    # ── Statistical layer ────────────────────────────────────────────
+    percentiles:    list[float] = field(default_factory=lambda: [0.50, 0.95, 0.99])
+    stat_tolerance: float       = 0.01
 
-    # Output
+    # ── Output ───────────────────────────────────────────────────────
     output_json_path: str = "validation_report.json"
 
 
 @dataclass
 class ValidationReport:
-    run_id:         str
-    timestamp:      str
-    source_label:   str
-    target_label:   str
-    overall_status: Status
+    run_id:            str
+    timestamp:         str
+    source_label:      str
+    target_label:      str
+    overall_status:    Status
     total_duration_ms: float
-    layers:   list[LayerResult]      = field(default_factory=list)
-    summary:  dict[str, Any]         = field(default_factory=dict)
-    ai_narrative: str                = ""
-
-    # Checks that were skipped due to missing configuration
-    skipped_notices: list[str]       = field(default_factory=list)
+    layers:            list[LayerResult] = field(default_factory=list)
+    summary:           dict[str, Any]   = field(default_factory=dict)
+    ai_narrative:      str              = ""
 
     def to_dict(self) -> dict:
         return asdict(self)
