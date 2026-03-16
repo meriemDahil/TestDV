@@ -1,0 +1,5 @@
+column_name,type
+sap_vendor_id,TEXT
+vendor_name,TEXT
+country_code,TEXT
+payment_terms,TEXT

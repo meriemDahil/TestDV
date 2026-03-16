@@ -1,10 +1,10 @@
 {
   "run_id": "run_001",
-  "timestamp": "2026-03-15T23:39:49.996539",
+  "timestamp": "2026-03-16T00:03:52.329274",
   "source_label": "Talend",
   "target_label": "SQL",
   "overall_status": "PASSED",
-  "total_duration_ms": 400.3468001028523,
+  "total_duration_ms": 428.6648000124842,
   "layers": [
     {
       "layer_name": "1_structural",
@@ -19,7 +19,7 @@
             "source_count": 14,
             "target_count": 14
           },
-          "duration_ms": 0.006900052540004253,
+          "duration_ms": 0.005799927748739719,
           "skipped_reason": ""
         },
         {
@@ -31,7 +31,7 @@
             "missing_in_target": [],
             "extra_in_target": []
           },
-          "duration_ms": 0.011299969628453255,
+          "duration_ms": 0.010899966582655907,
           "skipped_reason": ""
         },
         {
@@ -42,7 +42,7 @@
           "details": {
             "mismatches": {}
           },
-          "duration_ms": 2.2200000239536166,
+          "duration_ms": 2.228099969215691,
           "skipped_reason": ""
         },
         {
@@ -53,11 +53,11 @@
           "details": {
             "null_issues": {}
           },
-          "duration_ms": 8.257500012405217,
+          "duration_ms": 9.158200002275407,
           "skipped_reason": ""
         }
       ],
-      "duration_ms": 10.613500024192035
+      "duration_ms": 11.515600024722517
     },
     {
       "layer_name": "2_data_level",
@@ -73,7 +73,7 @@
             "target_rows": 40,
             "delta": 0
           },
-          "duration_ms": 0.040499959141016006,
+          "duration_ms": 0.02289994154125452,
           "skipped_reason": ""
         },
         {
@@ -85,7 +85,7 @@
             "source_hash": "8920e6001cb3bfb922d66aa5e13a2b6723918a7b16ec830403436dcedbc5283a",
             "target_hash": "8920e6001cb3bfb922d66aa5e13a2b6723918a7b16ec830403436dcedbc5283a"
           },
-          "duration_ms": 59.831000049598515,
+          "duration_ms": 43.681600014679134,
           "skipped_reason": ""
         },
         {
@@ -168,7 +168,7 @@
             },
             "mismatched_columns": []
           },
-          "duration_ms": 18.397700041532516,
+          "duration_ms": 23.857500054873526,
           "skipped_reason": ""
         },
         {
@@ -180,7 +180,7 @@
             "source_duplicates": 0,
             "target_duplicates": 0
           },
-          "duration_ms": 6.992199923843145,
+          "duration_ms": 5.361499963328242,
           "skipped_reason": ""
         },
         {
@@ -191,7 +191,7 @@
           "details": {
             "mismatched_buckets": []
           },
-          "duration_ms": 50.46499997843057,
+          "duration_ms": 69.245700025931,
           "skipped_reason": ""
         },
         {
@@ -200,11 +200,11 @@
           "status": "SKIPPED",
           "message": "Row-aligned diff skipped: no primary_key configured.",
           "details": {},
-          "duration_ms": 0.003500026650726795,
+          "duration_ms": 0.003800028935074806,
           "skipped_reason": "Set primary_key in ValidationConfig to enable cell-by-cell row comparison. Example: primary_key=['order_id']. Without a key we have no way to match rows between both datasets."
         }
       ],
-      "duration_ms": 135.87779994122684
+      "duration_ms": 142.3182999715209
     },
     {
       "layer_name": "3_business_rules",
@@ -232,7 +232,7 @@
               "payment_date"
             ]
           },
-          "duration_ms": 7.641799980774522,
+          "duration_ms": 8.01550003234297,
           "skipped_reason": ""
         },
         {
@@ -254,7 +254,7 @@
           "skipped_reason": "Add BusinessRule entries to ValidationConfig.business_rules. Example: BusinessRule(name='min_revenue', rule_fn=lambda df: df['revenue'].min())"
         }
       ],
-      "duration_ms": 8.129500085487962
+      "duration_ms": 8.621999993920326
     },
     {
       "layer_name": "4_statistical",
@@ -351,7 +351,7 @@
             },
             "issues": []
           },
-          "duration_ms": 22.270299959927797,
+          "duration_ms": 26.205799891613424,
           "skipped_reason": ""
         },
         {
@@ -362,7 +362,7 @@
           "details": {
             "issues": []
           },
-          "duration_ms": 5.772600066848099,
+          "duration_ms": 8.477799943648279,
           "skipped_reason": ""
         },
         {
@@ -373,7 +373,7 @@
           "details": {
             "issues": []
           },
-          "duration_ms": 2.242599963210523,
+          "duration_ms": 2.657900098711252,
           "skipped_reason": ""
         },
         {
@@ -385,11 +385,11 @@
             "score": 1.0,
             "threshold": 0.95
           },
-          "duration_ms": 0.06419990677386522,
+          "duration_ms": 0.04950002767145634,
           "skipped_reason": ""
         }
       ],
-      "duration_ms": 30.756999971345067
+      "duration_ms": 38.09789998922497
     }
   ],
   "summary": {

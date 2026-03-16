@@ -3,16 +3,20 @@ Layer 5 – Report Generation
 
 Produces:
   1. Structured JSON report (deterministic, machine-readable)
-  2. AI narrative via Claude API (human-readable summary)
+  2. AI narrative via Azure OpenAI SDK (human-readable summary)
      — The AI only reads the finished report and writes prose.
        It never performs any validation logic itself.
+
+Azure OpenAI credentials — set via environment variables or pass explicitly:
+    AZURE_OPENAI_API_KEY      your Azure OpenAI key
+    AZURE_OPENAI_ENDPOINT     e.g. https://<your-resource>.openai.azure.com/
+    AZURE_OPENAI_DEPLOYMENT   your deployment name  e.g. gpt-4o
+    AZURE_OPENAI_API_VERSION  e.g. 2024-02-01  (optional, has a default)
 """
 from __future__ import annotations
 
 import json
-import time
-import urllib.request
-import urllib.error
+import os
 
 from core.models import ValidationReport, LayerResult, Status
 
@@ -22,7 +26,7 @@ from core.models import ValidationReport, LayerResult, Status
 def build_summary(report: ValidationReport) -> dict:
     total = passed = failed = skipped = 0
     failures: list[dict] = []
-    skipped_notices: list[str] = []
+    skipped_notices: list[dict] = []
     layer_statuses: dict[str, str] = {}
 
     for layer in report.layers:
@@ -72,7 +76,7 @@ def write_json_report(report: ValidationReport, path: str) -> None:
     print(f"[report] JSON written → {path}")
 
 
-# AI narrative
+# AI narrative — Azure OpenAI
 
 _SYSTEM = """
 You are a senior data engineer writing a concise validation summary for a client migration report.
@@ -87,38 +91,92 @@ Rules:
 - End with a single-sentence recommendation.
 """
 
+# Default API version — override via env var or argument if needed
+_DEFAULT_API_VERSION = "2024-02-01"
 
-def generate_ai_narrative(report: ValidationReport, api_key: str = "") -> str:
+
+def generate_ai_narrative(
+    report: ValidationReport,
+    # ── Azure credentials (fall back to env vars if not passed) ──────
+    api_key:    str = "",
+    endpoint:   str = "",
+    deployment: str = "",
+    api_version: str = "",
+) -> str:
+    """
+    Calls Azure OpenAI to generate a human-readable narrative from the
+    finished validation report.
+
+    Credential resolution order (first non-empty value wins):
+      1. Argument passed directly to this function
+      2. Environment variable
+      3. Default (api_version only)
+
+    Environment variables:
+      AZURE_OPENAI_API_KEY
+      AZURE_OPENAI_ENDPOINT
+      AZURE_OPENAI_DEPLOYMENT
+      AZURE_OPENAI_API_VERSION
+    """
+    # Resolve credentials
+    api_key     = api_key     or os.getenv("AZURE_OPENAI_API_KEY",     "")
+    endpoint    = endpoint    or os.getenv("AZURE_OPENAI_ENDPOINT",    "")
+    deployment  = deployment  or os.getenv("AZURE_OPENAI_DEPLOYMENT",  "")
+    api_version = api_version or os.getenv("AZURE_OPENAI_API_VERSION", _DEFAULT_API_VERSION)
+
+    # Guard — tell the caller exactly what's missing
+    missing = [name for name, val in [
+        ("api_key",    api_key),
+        ("endpoint",   endpoint),
+        ("deployment", deployment),
+    ] if not val]
+
+    if missing:
+        return (
+            f"[AI narrative unavailable — missing Azure OpenAI config: {missing}. "
+            f"Set via env vars AZURE_OPENAI_API_KEY / AZURE_OPENAI_ENDPOINT / "
+            f"AZURE_OPENAI_DEPLOYMENT or pass them to generate_ai_narrative().]"
+        )
+
+    # Build the prompt — compact report, no raw check details
     compact = {
-        "run_id": report.run_id,
+        "run_id":         report.run_id,
         "overall_status": report.overall_status.value,
-        "source": report.source_label,
-        "target": report.target_label,
-        "summary": report.summary,
+        "source":         report.source_label,
+        "target":         report.target_label,
+        "summary":        report.summary,
     }
-    prompt = "Write the narrative for this validation report:\n\n" + json.dumps(compact, indent=2, default=str)
-
-    payload = json.dumps({
-        "model": "claude-sonnet-4-20250514",
-        "max_tokens": 1000,
-        "system": _SYSTEM,
-        "messages": [{"role": "user", "content": prompt}],
-    }).encode("utf-8")
-
-    headers = {"Content-Type": "application/json", "anthropic-version": "2023-06-01"}
-    if api_key:
-        headers["x-api-key"] = api_key
+    prompt = (
+        "Write the narrative for this validation report:\n\n"
+        + json.dumps(compact, indent=2, default=str)
+    )
 
     try:
-        req = urllib.request.Request(
-            "https://api.anthropic.com/v1/messages",
-            data=payload, headers=headers, method="POST",
+        from openai import AzureOpenAI
+
+        client = AzureOpenAI(
+            api_key=api_key,
+            azure_endpoint=endpoint,
+            api_version=api_version,
         )
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            body = json.loads(resp.read().decode("utf-8"))
-            return body["content"][0]["text"]
-    except urllib.error.HTTPError as e:
-        return f"[AI narrative unavailable — HTTP {e.code}: {e.read().decode()[:200]}]"
+
+        response = client.chat.completions.create(
+            model=deployment,          # Azure uses the deployment name here, not the model name
+            messages=[
+                {"role": "system", "content": _SYSTEM},
+                {"role": "user",   "content": prompt},
+            ],
+            max_tokens=1000,
+            temperature=0.2,           # low temp — we want consistent, factual prose
+        )
+
+        return response.choices[0].message.content
+
+    except ImportError:
+        return (
+            "[AI narrative unavailable — openai package not installed. "
+            "Run: pip install openai]"
+        )
     except Exception as e:
         return f"[AI narrative unavailable — {e}]"
 
@@ -136,17 +194,17 @@ def print_console_summary(report: ValidationReport) -> None:
     print(sep)
     print(f"  Overall   : {icon} {report.overall_status.value}")
     print(f"  Duration  : {report.total_duration_ms:.1f} ms")
-    print(f"  Checks    : {s.get('passed',0)} passed / "
-          f"{s.get('failed',0)} failed / "
-          f"{s.get('skipped',0)} skipped "
-          f"(pass rate {s.get('pass_rate',0):.1%})")
+    print(f"  Checks    : {s.get('passed', 0)} passed / "
+          f"{s.get('failed', 0)} failed / "
+          f"{s.get('skipped', 0)} skipped "
+          f"(pass rate {s.get('pass_rate', 0):.1%})")
     print(sep)
 
     for layer in report.layers:
         icon_l = "✓" if layer.status == Status.PASSED else "✗"
         print(f"  {icon_l} {layer.layer_name:<28}  {layer.status.value:<8}  {layer.duration_ms:.1f}ms")
 
-    # Print skipped check notices
+    # Skipped check notices
     skipped = s.get("skipped_checks", [])
     if skipped:
         print(sep)
@@ -157,7 +215,7 @@ def print_console_summary(report: ValidationReport) -> None:
             if sk.get("to_enable"):
                 print(f"    → To enable: {sk['to_enable']}")
 
-    # Print failures
+    # Failures
     failures = s.get("failures", [])
     if failures:
         print(sep)
@@ -172,3 +230,10 @@ def print_console_summary(report: ValidationReport) -> None:
             print(f"  {line}")
 
     print(f"\n{sep}\n")
+
+
+
+# export AZURE_OPENAI_API_KEY="your-key"
+# export AZURE_OPENAI_ENDPOINT="https://your-resource.openai.azure.com/"
+# export AZURE_OPENAI_DEPLOYMENT="gpt-4o"
+# export AZURE_OPENAI_API_VERSION="2024-02-01"  # optional, has a default

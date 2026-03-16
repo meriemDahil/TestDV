@@ -1,0 +1,12 @@
+column_name,type
+bukrs,TEXT
+belnr,TEXT
+sap_vendor_id,TEXT
+wrbtr,REAL
+mwskz,TEXT
+bldat,TEXT
+zfbdt,TEXT
+zlsch,TEXT
+augdt,TEXT
+payment_status_raw,TEXT
+waers,TEXT
