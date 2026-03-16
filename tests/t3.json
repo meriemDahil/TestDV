@@ -1,0 +1,458 @@
+{
+  "run_id": "t3_row_mismatch",
+  "timestamp": "2026-03-16T00:25:18.377205",
+  "source_label": "Talend",
+  "target_label": "SQL",
+  "overall_status": "FAILED",
+  "total_duration_ms": 49.8576998943463,
+  "layers": [
+    {
+      "layer_name": "1_structural",
+      "status": "PASSED",
+      "checks": [
+        {
+          "layer": "1_structural",
+          "check_name": "column_count",
+          "status": "PASSED",
+          "message": "Both datasets have 6 columns.",
+          "details": {
+            "source_count": 6,
+            "target_count": 6
+          },
+          "duration_ms": 0.004100031219422817,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "1_structural",
+          "check_name": "column_names",
+          "status": "PASSED",
+          "message": "All column names match.",
+          "details": {
+            "missing_in_target": [],
+            "extra_in_target": []
+          },
+          "duration_ms": 0.010299962013959885,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "1_structural",
+          "check_name": "data_types",
+          "status": "PASSED",
+          "message": "All column dtypes are compatible.",
+          "details": {
+            "mismatches": {}
+          },
+          "duration_ms": 0.9978000307455659,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "1_structural",
+          "check_name": "null_counts",
+          "status": "PASSED",
+          "message": "Null counts match for all columns.",
+          "details": {
+            "null_issues": {}
+          },
+          "duration_ms": 2.768400008790195,
+          "skipped_reason": ""
+        }
+      ],
+      "duration_ms": 3.863799967803061
+    },
+    {
+      "layer_name": "2_data_level",
+      "status": "FAILED",
+      "checks": [
+        {
+          "layer": "2_data_level",
+          "check_name": "row_count",
+          "status": "FAILED",
+          "message": "Row count mismatch: Talend=300, SQL=285 (delta=15).",
+          "details": {
+            "source_rows": 300,
+            "target_rows": 285,
+            "delta": 15
+          },
+          "duration_ms": 0.10079995263367891,
+          "skipped_reason": ""
+        }
+      ],
+      "duration_ms": 0.3887999337166548
+    },
+    {
+      "layer_name": "3_business_rules",
+      "status": "FAILED",
+      "checks": [
+        {
+          "layer": "3_business_rules",
+          "check_name": "grand_total_aggregations",
+          "status": "SKIPPED",
+          "message": "Grand total aggregations skipped: no aggregation_columns configured.",
+          "details": {},
+          "duration_ms": 0.0,
+          "skipped_reason": "Set aggregation_columns in ValidationConfig. Example: aggregation_columns=['revenue', 'qty']"
+        },
+        {
+          "layer": "3_business_rules",
+          "check_name": "float_tolerance",
+          "status": "FAILED",
+          "message": "3 numeric column(s) exceed tolerance.",
+          "details": {
+            "issues": [
+              {
+                "column": "qty",
+                "reason": "different non-null counts",
+                "source_count": 300,
+                "target_count": 285
+              },
+              {
+                "column": "unit_price",
+                "reason": "different non-null counts",
+                "source_count": 300,
+                "target_count": 285
+              },
+              {
+                "column": "revenue",
+                "reason": "different non-null counts",
+                "source_count": 300,
+                "target_count": 285
+              }
+            ],
+            "columns_checked": [
+              "qty",
+              "unit_price",
+              "revenue"
+            ]
+          },
+          "duration_ms": 4.635100020095706,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "3_business_rules",
+          "check_name": "group_by_consistency",
+          "status": "SKIPPED",
+          "message": "Group-by consistency skipped: no group_by_columns configured.",
+          "details": {},
+          "duration_ms": 0.0,
+          "skipped_reason": "Set group_by_columns and aggregation_columns. Example: group_by_columns=['region'], aggregation_columns=['revenue']"
+        },
+        {
+          "layer": "3_business_rules",
+          "check_name": "custom_rules",
+          "status": "SKIPPED",
+          "message": "No custom business rules defined.",
+          "details": {},
+          "duration_ms": 0.0,
+          "skipped_reason": "Add BusinessRule entries to ValidationConfig.business_rules. Example: BusinessRule(name='min_revenue', rule_fn=lambda df: df['revenue'].min())"
+        }
+      ],
+      "duration_ms": 6.25690002925694
+    },
+    {
+      "layer_name": "4_statistical",
+      "status": "FAILED",
+      "checks": [
+        {
+          "layer": "4_statistical",
+          "check_name": "per_column_statistics",
+          "status": "FAILED",
+          "message": "Statistical deviation in 5 stat(s).",
+          "details": {
+            "tolerance": 0.01,
+            "columns_checked": [
+              "qty",
+              "revenue",
+              "unit_price"
+            ],
+            "column_profiles": {
+              "qty": {
+                "source": {
+                  "min": 1.0,
+                  "max": 99.0,
+                  "mean": 51.38,
+                  "stddev": 29.39243640336324,
+                  "non_null": 300,
+                  "null_ratio": 0.0,
+                  "p50": 54.0,
+                  "p95": 95.0,
+                  "p99": 98.00999999999999
+                },
+                "target": {
+                  "min": 1.0,
+                  "max": 99.0,
+                  "mean": 51.90526315789474,
+                  "stddev": 29.22860612248902,
+                  "non_null": 285,
+                  "null_ratio": 0.0,
+                  "p50": 54.0,
+                  "p95": 94.80000000000001,
+                  "p99": 98.16000000000003
+                },
+                "issues": [
+                  {
+                    "column": "qty",
+                    "stat": "mean",
+                    "source": 51.38,
+                    "target": 51.90526315789474,
+                    "relative_diff": 0.010223,
+                    "tolerance": 0.01
+                  }
+                ]
+              },
+              "revenue": {
+                "source": {
+                  "min": 108.1,
+                  "max": 48973.32,
+                  "mean": 13207.062533333332,
+                  "stddev": 11505.709994865072,
+                  "non_null": 300,
+                  "null_ratio": 0.0,
+                  "p50": 10213.69,
+                  "p95": 34584.50550000001,
+                  "p99": 45804.49519999999
+                },
+                "target": {
+                  "min": 148.92,
+                  "max": 48973.32,
+                  "mean": 13418.902596491229,
+                  "stddev": 11563.556280982246,
+                  "non_null": 285,
+                  "null_ratio": 0.0,
+                  "p50": 10257.6,
+                  "p95": 34772.988000000005,
+                  "p99": 45918.12320000002
+                },
+                "issues": [
+                  {
+                    "column": "revenue",
+                    "stat": "min",
+                    "source": 108.1,
+                    "target": 148.92,
+                    "relative_diff": 0.377613,
+                    "tolerance": 0.01
+                  },
+                  {
+                    "column": "revenue",
+                    "stat": "mean",
+                    "source": 13207.062533333332,
+                    "target": 13418.902596491229,
+                    "relative_diff": 0.01604,
+                    "tolerance": 0.01
+                  }
+                ]
+              },
+              "unit_price": {
+                "source": {
+                  "min": 10.6,
+                  "max": 499.38,
+                  "mean": 254.6099,
+                  "stddev": 140.75135156086674,
+                  "non_null": 300,
+                  "null_ratio": 0.0,
+                  "p50": 252.81,
+                  "p95": 479.649,
+                  "p99": 497.4038
+                },
+                "target": {
+                  "min": 12.21,
+                  "max": 499.38,
+                  "mean": 256.51568421052633,
+                  "stddev": 140.88817244602762,
+                  "non_null": 285,
+                  "null_ratio": 0.0,
+                  "p50": 256.78,
+                  "p95": 479.93399999999997,
+                  "p99": 497.4608
+                },
+                "issues": [
+                  {
+                    "column": "unit_price",
+                    "stat": "min",
+                    "source": 10.6,
+                    "target": 12.21,
+                    "relative_diff": 0.151887,
+                    "tolerance": 0.01
+                  },
+                  {
+                    "column": "unit_price",
+                    "stat": "p50",
+                    "source": 252.81,
+                    "target": 256.78,
+                    "relative_diff": 0.015703,
+                    "tolerance": 0.01
+                  }
+                ]
+              }
+            },
+            "issues": [
+              {
+                "column": "qty",
+                "stat": "mean",
+                "source": 51.38,
+                "target": 51.90526315789474,
+                "relative_diff": 0.010223,
+                "tolerance": 0.01
+              },
+              {
+                "column": "revenue",
+                "stat": "min",
+                "source": 108.1,
+                "target": 148.92,
+                "relative_diff": 0.377613,
+                "tolerance": 0.01
+              },
+              {
+                "column": "revenue",
+                "stat": "mean",
+                "source": 13207.062533333332,
+                "target": 13418.902596491229,
+                "relative_diff": 0.01604,
+                "tolerance": 0.01
+              },
+              {
+                "column": "unit_price",
+                "stat": "min",
+                "source": 10.6,
+                "target": 12.21,
+                "relative_diff": 0.151887,
+                "tolerance": 0.01
+              },
+              {
+                "column": "unit_price",
+                "stat": "p50",
+                "source": 252.81,
+                "target": 256.78,
+                "relative_diff": 0.015703,
+                "tolerance": 0.01
+              }
+            ]
+          },
+          "duration_ms": 28.937699971720576,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "4_statistical",
+          "check_name": "null_ratio",
+          "status": "PASSED",
+          "message": "Null ratios match for all columns.",
+          "details": {
+            "issues": []
+          },
+          "duration_ms": 3.614500048570335,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "4_statistical",
+          "check_name": "cardinality",
+          "status": "FAILED",
+          "message": "Cardinality mismatch in 4 column(s).",
+          "details": {
+            "issues": [
+              {
+                "column": "order_id",
+                "source_cardinality": 300,
+                "target_cardinality": 285,
+                "delta": 15
+              },
+              {
+                "column": "qty",
+                "source_cardinality": 92,
+                "target_cardinality": 90,
+                "delta": 2
+              },
+              {
+                "column": "revenue",
+                "source_cardinality": 300,
+                "target_cardinality": 285,
+                "delta": 15
+              },
+              {
+                "column": "unit_price",
+                "source_cardinality": 298,
+                "target_cardinality": 283,
+                "delta": 15
+              }
+            ]
+          },
+          "duration_ms": 2.1594000281766057,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "4_statistical",
+          "check_name": "distribution_confidence",
+          "status": "FAILED",
+          "message": "Distribution confidence: 76.2% (< 95% threshold).",
+          "details": {
+            "score": 0.7619,
+            "threshold": 0.95
+          },
+          "duration_ms": 0.07079995702952147,
+          "skipped_reason": ""
+        }
+      ],
+      "duration_ms": 35.14930000528693
+    }
+  ],
+  "summary": {
+    "total_checks": 13,
+    "passed": 5,
+    "failed": 5,
+    "skipped": 3,
+    "pass_rate": 0.5,
+    "equivalent": false,
+    "failures": [
+      {
+        "layer": "2_data_level",
+        "check": "row_count",
+        "message": "Row count mismatch: Talend=300, SQL=285 (delta=15)."
+      },
+      {
+        "layer": "3_business_rules",
+        "check": "float_tolerance",
+        "message": "3 numeric column(s) exceed tolerance."
+      },
+      {
+        "layer": "4_statistical",
+        "check": "per_column_statistics",
+        "message": "Statistical deviation in 5 stat(s)."
+      },
+      {
+        "layer": "4_statistical",
+        "check": "cardinality",
+        "message": "Cardinality mismatch in 4 column(s)."
+      },
+      {
+        "layer": "4_statistical",
+        "check": "distribution_confidence",
+        "message": "Distribution confidence: 76.2% (< 95% threshold)."
+      }
+    ],
+    "skipped_checks": [
+      {
+        "layer": "3_business_rules",
+        "check": "grand_total_aggregations",
+        "message": "Grand total aggregations skipped: no aggregation_columns configured.",
+        "to_enable": "Set aggregation_columns in ValidationConfig. Example: aggregation_columns=['revenue', 'qty']"
+      },
+      {
+        "layer": "3_business_rules",
+        "check": "group_by_consistency",
+        "message": "Group-by consistency skipped: no group_by_columns configured.",
+        "to_enable": "Set group_by_columns and aggregation_columns. Example: group_by_columns=['region'], aggregation_columns=['revenue']"
+      },
+      {
+        "layer": "3_business_rules",
+        "check": "custom_rules",
+        "message": "No custom business rules defined.",
+        "to_enable": "Add BusinessRule entries to ValidationConfig.business_rules. Example: BusinessRule(name='min_revenue', rule_fn=lambda df: df['revenue'].min())"
+      }
+    ],
+    "layer_statuses": {
+      "1_structural": "PASSED",
+      "2_data_level": "FAILED",
+      "3_business_rules": "FAILED",
+      "4_statistical": "FAILED"
+    }
+  },
+  "ai_narrative": ""
+}

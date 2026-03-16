@@ -25,9 +25,7 @@ from core.models import ValidationConfig, BusinessRule, ColumnTolerance
 from pipeline.orchestrator import ValidationEngine
 
 
-# ─────────────────────────────────────────────
 # Dataset factory
-# ─────────────────────────────────────────────
 
 def make_dataset(
     n: int = 300,
@@ -62,9 +60,7 @@ def make_dataset(
     return df
 
 
-# ─────────────────────────────────────────────
 # Tests
-# ─────────────────────────────────────────────
 
 def test_perfect_match():
     print("\n" + "═"*60)
@@ -78,7 +74,7 @@ def test_perfect_match():
         primary_key=["order_id"],
         aggregation_columns=["revenue", "qty"],
         group_by_columns=["region"],
-        output_json_path="/tmp/t1.json",
+        output_json_path="./tests/t1.json",
     )
     r = ValidationEngine(config).run(src, tgt, generate_narrative=False)
     assert r.overall_status.value == "PASSED", f"Expected PASSED, got {r.overall_status}"
@@ -101,7 +97,7 @@ def test_float_noise_within_tolerance():
         default_abs_tolerance=0.01,
         default_rel_tolerance=0.01,
         stat_tolerance=0.05,
-        output_json_path="/tmp/t2.json",
+        output_json_path="./tests/t2.json",
     )
     r = ValidationEngine(config).run(src, tgt, generate_narrative=False)
     # Layer 2 hash will fail (bytes differ) but that's expected — floats differ
@@ -119,7 +115,7 @@ def test_row_count_mismatch():
 
     config = ValidationConfig(
         run_id="t3_row_mismatch",
-        output_json_path="/tmp/t3.json",
+        output_json_path="./tests/t3.json",
     )
     r = ValidationEngine(config).run(src, tgt, generate_narrative=False)
     assert r.overall_status.value == "FAILED"
@@ -143,7 +139,7 @@ def test_schema_mismatch_stops_at_layer1():
 
     config = ValidationConfig(
         run_id="t4_schema",
-        output_json_path="/tmp/t4.json",
+        output_json_path="./tests/t4.json",
     )
     r = ValidationEngine(config).run(src, tgt, generate_narrative=False)
     assert r.overall_status.value == "FAILED"
@@ -166,7 +162,7 @@ def test_no_primary_key_skips_row_diff():
     config = ValidationConfig(
         run_id="t5_no_pk",
         # primary_key intentionally NOT set
-        output_json_path="/tmp/t5.json",
+        output_json_path="./tests/t5.json",
     )
     r = ValidationEngine(config).run(src, tgt, generate_narrative=False)
 
@@ -193,7 +189,7 @@ def test_no_aggregation_columns_skips_agg_checks():
     config = ValidationConfig(
         run_id="t6_no_agg",
         # aggregation_columns intentionally NOT set
-        output_json_path="/tmp/t6.json",
+        output_json_path="./tests/t6.json",
     )
     r = ValidationEngine(config).run(src, tgt, generate_narrative=False)
 
@@ -222,11 +218,11 @@ def test_custom_rule_violation():
         business_rules=[
             BusinessRule(
                 name="revenue_positive",
-                expression="SELECT MIN(revenue) FROM {table}",
+                rule_fn="SELECT MIN(revenue) FROM {table}",
                 tolerance=0.0,
             )
         ],
-        output_json_path="/tmp/t7.json",
+        output_json_path="./tests/t7.json",
     )
     r = ValidationEngine(config).run(src, tgt, generate_narrative=False)
     assert r.overall_status.value == "FAILED"
@@ -238,9 +234,7 @@ def test_custom_rule_violation():
     return r
 
 
-# ─────────────────────────────────────────────
 # Runner
-# ─────────────────────────────────────────────
 
 if __name__ == "__main__":
     results = {}

@@ -1,0 +1,588 @@
+{
+  "run_id": "t7_custom_rule",
+  "timestamp": "2026-03-16T00:25:18.832099",
+  "source_label": "Talend",
+  "target_label": "SQL",
+  "overall_status": "FAILED",
+  "total_duration_ms": 133.3215000340715,
+  "layers": [
+    {
+      "layer_name": "1_structural",
+      "status": "PASSED",
+      "checks": [
+        {
+          "layer": "1_structural",
+          "check_name": "column_count",
+          "status": "PASSED",
+          "message": "Both datasets have 6 columns.",
+          "details": {
+            "source_count": 6,
+            "target_count": 6
+          },
+          "duration_ms": 0.006800051778554916,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "1_structural",
+          "check_name": "column_names",
+          "status": "PASSED",
+          "message": "All column names match.",
+          "details": {
+            "missing_in_target": [],
+            "extra_in_target": []
+          },
+          "duration_ms": 0.012299977242946625,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "1_structural",
+          "check_name": "data_types",
+          "status": "PASSED",
+          "message": "All column dtypes are compatible.",
+          "details": {
+            "mismatches": {}
+          },
+          "duration_ms": 2.1652000723406672,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "1_structural",
+          "check_name": "null_counts",
+          "status": "PASSED",
+          "message": "Null counts match for all columns.",
+          "details": {
+            "null_issues": {}
+          },
+          "duration_ms": 5.4070999613031745,
+          "skipped_reason": ""
+        }
+      ],
+      "duration_ms": 7.72220001090318
+    },
+    {
+      "layer_name": "2_data_level",
+      "status": "FAILED",
+      "checks": [
+        {
+          "layer": "2_data_level",
+          "check_name": "row_count",
+          "status": "PASSED",
+          "message": "Row counts match: 200 rows.",
+          "details": {
+            "source_rows": 200,
+            "target_rows": 200,
+            "delta": 0
+          },
+          "duration_ms": 0.021499930880963802,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "2_data_level",
+          "check_name": "full_dataset_hash",
+          "status": "FAILED",
+          "message": "Full dataset hash mismatch \u2014 content differs.",
+          "details": {
+            "source_hash": "6b47b964ee5b276b45167d57b5de7302662e665c386df6a17c50a57f0eeed5fc",
+            "target_hash": "7a51002e9afff46125860940d5224530c77b9d80faaa1d0ff42d66019e1ba213"
+          },
+          "duration_ms": 28.71490002144128,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "2_data_level",
+          "check_name": "column_level_hash",
+          "status": "FAILED",
+          "message": "Hash mismatch in 1 column(s): ['revenue'].",
+          "details": {
+            "column_hashes": {
+              "order_id": {
+                "match": true,
+                "source_hash": "56cf744d39796f9697b351075a1769f5e38ab3cb848bbc73406f0a56d9e323bb",
+                "target_hash": "56cf744d39796f9697b351075a1769f5e38ab3cb848bbc73406f0a56d9e323bb"
+              },
+              "product": {
+                "match": true,
+                "source_hash": "9fdd17371a530570fe9d74cb523dfb775d00de70aed4487edf061e621b90a813",
+                "target_hash": "9fdd17371a530570fe9d74cb523dfb775d00de70aed4487edf061e621b90a813"
+              },
+              "qty": {
+                "match": true,
+                "source_hash": "0ad89c0e313d69b21c2d7cc3fcde8f30b2d643bf9788d138d7c96fa5d97045c4",
+                "target_hash": "0ad89c0e313d69b21c2d7cc3fcde8f30b2d643bf9788d138d7c96fa5d97045c4"
+              },
+              "region": {
+                "match": true,
+                "source_hash": "e7510d0bf7417cc42c2116fe8e64ae0875e921b84f03603749aaa9e52d59e1bc",
+                "target_hash": "e7510d0bf7417cc42c2116fe8e64ae0875e921b84f03603749aaa9e52d59e1bc"
+              },
+              "revenue": {
+                "match": false,
+                "source_hash": "8100fa53e9c8f62b1e6a102e2e3e080a16408b0ee0c97cf28e6d444f272779d3",
+                "target_hash": "c0a59d14bf43498600d54b735285a3d8fd434b6a8a1c8660261fb658fbf7ef20"
+              },
+              "unit_price": {
+                "match": true,
+                "source_hash": "4908102ef778cb0719400a6499b8bce247d2337be7eeecada75df89f1cde8e3c",
+                "target_hash": "4908102ef778cb0719400a6499b8bce247d2337be7eeecada75df89f1cde8e3c"
+              }
+            },
+            "mismatched_columns": [
+              "revenue"
+            ]
+          },
+          "duration_ms": 9.19309991877526,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "2_data_level",
+          "check_name": "duplicate_rows",
+          "status": "PASSED",
+          "message": "Duplicate row counts match (0).",
+          "details": {
+            "source_duplicates": 0,
+            "target_duplicates": 0
+          },
+          "duration_ms": 1.9555999897420406,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "2_data_level",
+          "check_name": "bucketed_checksum",
+          "status": "FAILED",
+          "message": "Checksum mismatch in 10 bucket(s).",
+          "details": {
+            "mismatched_buckets": [
+              {
+                "bucket": 0,
+                "source_hash": "854ac1de64db0f320b31ac770526a00b",
+                "target_hash": "208c76abb705018f5aaf930279c6c183",
+                "source_rows": 20,
+                "target_rows": 20
+              },
+              {
+                "bucket": 1,
+                "source_hash": "9bfc4b8caaa2167c712b32d1d7a8e3fa",
+                "target_hash": "18660c4f1260b0d0d52d85f9c11acf09",
+                "source_rows": 20,
+                "target_rows": 20
+              },
+              {
+                "bucket": 2,
+                "source_hash": "2162b5bac31b257ee15787c74160406d",
+                "target_hash": "cacff25977781441e04c07c0f64ed590",
+                "source_rows": 20,
+                "target_rows": 20
+              },
+              {
+                "bucket": 3,
+                "source_hash": "5e8e26982c0d0a599459f88cbe05ffbd",
+                "target_hash": "3aac199351de0f227eef9a6d71824877",
+                "source_rows": 20,
+                "target_rows": 20
+              },
+              {
+                "bucket": 4,
+                "source_hash": "d6c961f16adfde22acca8d1c4d72a9e5",
+                "target_hash": "27bc26c108f1dc9e4806038802367649",
+                "source_rows": 20,
+                "target_rows": 20
+              },
+              {
+                "bucket": 5,
+                "source_hash": "c266a951aed0b0dd7131261d268e7ca5",
+                "target_hash": "3bcb3bf2a5e0fc2523a121b82b58d9b7",
+                "source_rows": 20,
+                "target_rows": 20
+              },
+              {
+                "bucket": 6,
+                "source_hash": "b379175f990523d7a1430af5c6bf8bf4",
+                "target_hash": "3ee5d737247198adf43d28b60c8816af",
+                "source_rows": 20,
+                "target_rows": 20
+              },
+              {
+                "bucket": 7,
+                "source_hash": "141bf9b174a6e036a4e3e13c72a6ebc7",
+                "target_hash": "d901785a4986b58ead1f5dd4da46c779",
+                "source_rows": 20,
+                "target_rows": 20
+              },
+              {
+                "bucket": 8,
+                "source_hash": "1362ce995b7cdc4872cb2efba6ff0542",
+                "target_hash": "f600f92e37abfec3f761f586b45fd7d8",
+                "source_rows": 20,
+                "target_rows": 20
+              },
+              {
+                "bucket": 9,
+                "source_hash": "ce6bde718bd79f0c3e8533cf5d57c93d",
+                "target_hash": "ea4b5366e80bc68e35e6479f62c5c5e3",
+                "source_rows": 20,
+                "target_rows": 20
+              }
+            ]
+          },
+          "duration_ms": 44.425099971704185,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "2_data_level",
+          "check_name": "row_aligned_diff",
+          "status": "SKIPPED",
+          "message": "Row-aligned diff skipped: no primary_key configured.",
+          "details": {},
+          "duration_ms": 0.001999898813664913,
+          "skipped_reason": "Set primary_key in ValidationConfig to enable cell-by-cell row comparison. Example: primary_key=['order_id']. Without a key we have no way to match rows between both datasets."
+        }
+      ],
+      "duration_ms": 84.41749995108694
+    },
+    {
+      "layer_name": "3_business_rules",
+      "status": "FAILED",
+      "checks": [
+        {
+          "layer": "3_business_rules",
+          "check_name": "grand_total_aggregations",
+          "status": "SKIPPED",
+          "message": "Grand total aggregations skipped: no aggregation_columns configured.",
+          "details": {},
+          "duration_ms": 0.0,
+          "skipped_reason": "Set aggregation_columns in ValidationConfig. Example: aggregation_columns=['revenue', 'qty']"
+        },
+        {
+          "layer": "3_business_rules",
+          "check_name": "float_tolerance",
+          "status": "FAILED",
+          "message": "1 numeric column(s) exceed tolerance.",
+          "details": {
+            "issues": [
+              {
+                "column": "revenue",
+                "max_absolute_diff": 2141.0099999999984,
+                "max_relative_diff": 7.830302201558868,
+                "abs_tolerance": 1e-06,
+                "rel_tolerance": 0.0001
+              }
+            ],
+            "columns_checked": [
+              "qty",
+              "unit_price",
+              "revenue"
+            ]
+          },
+          "duration_ms": 6.630599964410067,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "3_business_rules",
+          "check_name": "group_by_consistency",
+          "status": "SKIPPED",
+          "message": "Group-by consistency skipped: no group_by_columns configured.",
+          "details": {},
+          "duration_ms": 0.0,
+          "skipped_reason": "Set group_by_columns and aggregation_columns. Example: group_by_columns=['region'], aggregation_columns=['revenue']"
+        },
+        {
+          "layer": "3_business_rules",
+          "check_name": "rule_revenue_positive",
+          "status": "FAILED",
+          "message": "Rule 'revenue_positive' raised an exception: 'str' object is not callable.",
+          "details": {
+            "error": "'str' object is not callable"
+          },
+          "duration_ms": 0.015199999324977398,
+          "skipped_reason": ""
+        }
+      ],
+      "duration_ms": 7.345500052906573
+    },
+    {
+      "layer_name": "4_statistical",
+      "status": "FAILED",
+      "checks": [
+        {
+          "layer": "4_statistical",
+          "check_name": "per_column_statistics",
+          "status": "FAILED",
+          "message": "Statistical deviation in 4 stat(s).",
+          "details": {
+            "tolerance": 0.01,
+            "columns_checked": [
+              "qty",
+              "revenue",
+              "unit_price"
+            ],
+            "column_profiles": {
+              "qty": {
+                "source": {
+                  "min": 1.0,
+                  "max": 99.0,
+                  "mean": 50.785,
+                  "stddev": 30.13201731276357,
+                  "non_null": 200,
+                  "null_ratio": 0.0,
+                  "p50": 51.0,
+                  "p95": 95.04999999999998,
+                  "p99": 98.00999999999999
+                },
+                "target": {
+                  "min": 1.0,
+                  "max": 99.0,
+                  "mean": 50.785,
+                  "stddev": 30.13201731276357,
+                  "non_null": 200,
+                  "null_ratio": 0.0,
+                  "p50": 51.0,
+                  "p95": 95.04999999999998,
+                  "p99": 98.00999999999999
+                },
+                "issues": []
+              },
+              "revenue": {
+                "source": {
+                  "min": 146.26,
+                  "max": 42228.92,
+                  "mean": 13007.881800000001,
+                  "stddev": 10714.391930838297,
+                  "non_null": 200,
+                  "null_ratio": 0.0,
+                  "p50": 10340.14,
+                  "p95": 33691.28499999998,
+                  "p99": 39395.77799999998
+                },
+                "target": {
+                  "min": -999.0,
+                  "max": 42228.92,
+                  "mean": 12237.2827,
+                  "stddev": 10889.37197879513,
+                  "non_null": 200,
+                  "null_ratio": 0.0,
+                  "p50": 9609.27,
+                  "p95": 33577.364,
+                  "p99": 39395.77799999998
+                },
+                "issues": [
+                  {
+                    "column": "revenue",
+                    "stat": "min",
+                    "source": 146.26,
+                    "target": -999.0,
+                    "relative_diff": 7.830302,
+                    "tolerance": 0.01
+                  },
+                  {
+                    "column": "revenue",
+                    "stat": "mean",
+                    "source": 13007.881800000001,
+                    "target": 12237.2827,
+                    "relative_diff": 0.059241,
+                    "tolerance": 0.01
+                  },
+                  {
+                    "column": "revenue",
+                    "stat": "stddev",
+                    "source": 10714.391930838297,
+                    "target": 10889.37197879513,
+                    "relative_diff": 0.016331,
+                    "tolerance": 0.01
+                  },
+                  {
+                    "column": "revenue",
+                    "stat": "p50",
+                    "source": 10340.14,
+                    "target": 9609.27,
+                    "relative_diff": 0.070683,
+                    "tolerance": 0.01
+                  }
+                ]
+              },
+              "unit_price": {
+                "source": {
+                  "min": 12.66,
+                  "max": 499.56,
+                  "mean": 259.51925000000006,
+                  "stddev": 137.96830075420408,
+                  "non_null": 200,
+                  "null_ratio": 0.0,
+                  "p50": 271.695,
+                  "p95": 471.02299999999997,
+                  "p99": 493.5009999999999
+                },
+                "target": {
+                  "min": 12.66,
+                  "max": 499.56,
+                  "mean": 259.51925000000006,
+                  "stddev": 137.96830075420408,
+                  "non_null": 200,
+                  "null_ratio": 0.0,
+                  "p50": 271.695,
+                  "p95": 471.02299999999997,
+                  "p99": 493.5009999999999
+                },
+                "issues": []
+              }
+            },
+            "issues": [
+              {
+                "column": "revenue",
+                "stat": "min",
+                "source": 146.26,
+                "target": -999.0,
+                "relative_diff": 7.830302,
+                "tolerance": 0.01
+              },
+              {
+                "column": "revenue",
+                "stat": "mean",
+                "source": 13007.881800000001,
+                "target": 12237.2827,
+                "relative_diff": 0.059241,
+                "tolerance": 0.01
+              },
+              {
+                "column": "revenue",
+                "stat": "stddev",
+                "source": 10714.391930838297,
+                "target": 10889.37197879513,
+                "relative_diff": 0.016331,
+                "tolerance": 0.01
+              },
+              {
+                "column": "revenue",
+                "stat": "p50",
+                "source": 10340.14,
+                "target": 9609.27,
+                "relative_diff": 0.070683,
+                "tolerance": 0.01
+              }
+            ]
+          },
+          "duration_ms": 25.826500030234456,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "4_statistical",
+          "check_name": "null_ratio",
+          "status": "PASSED",
+          "message": "Null ratios match for all columns.",
+          "details": {
+            "issues": []
+          },
+          "duration_ms": 2.9100000392645597,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "4_statistical",
+          "check_name": "cardinality",
+          "status": "FAILED",
+          "message": "Cardinality mismatch in 1 column(s).",
+          "details": {
+            "issues": [
+              {
+                "column": "revenue",
+                "source_cardinality": 200,
+                "target_cardinality": 190,
+                "delta": 10
+              }
+            ]
+          },
+          "duration_ms": 1.236200099810958,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "4_statistical",
+          "check_name": "distribution_confidence",
+          "status": "FAILED",
+          "message": "Distribution confidence: 81.0% (< 95% threshold).",
+          "details": {
+            "score": 0.8095,
+            "threshold": 0.95
+          },
+          "duration_ms": 0.031800009310245514,
+          "skipped_reason": ""
+        }
+      ],
+      "duration_ms": 30.32100002747029
+    }
+  ],
+  "summary": {
+    "total_checks": 18,
+    "passed": 7,
+    "failed": 8,
+    "skipped": 3,
+    "pass_rate": 0.4667,
+    "equivalent": false,
+    "failures": [
+      {
+        "layer": "2_data_level",
+        "check": "full_dataset_hash",
+        "message": "Full dataset hash mismatch \u2014 content differs."
+      },
+      {
+        "layer": "2_data_level",
+        "check": "column_level_hash",
+        "message": "Hash mismatch in 1 column(s): ['revenue']."
+      },
+      {
+        "layer": "2_data_level",
+        "check": "bucketed_checksum",
+        "message": "Checksum mismatch in 10 bucket(s)."
+      },
+      {
+        "layer": "3_business_rules",
+        "check": "float_tolerance",
+        "message": "1 numeric column(s) exceed tolerance."
+      },
+      {
+        "layer": "3_business_rules",
+        "check": "rule_revenue_positive",
+        "message": "Rule 'revenue_positive' raised an exception: 'str' object is not callable."
+      },
+      {
+        "layer": "4_statistical",
+        "check": "per_column_statistics",
+        "message": "Statistical deviation in 4 stat(s)."
+      },
+      {
+        "layer": "4_statistical",
+        "check": "cardinality",
+        "message": "Cardinality mismatch in 1 column(s)."
+      },
+      {
+        "layer": "4_statistical",
+        "check": "distribution_confidence",
+        "message": "Distribution confidence: 81.0% (< 95% threshold)."
+      }
+    ],
+    "skipped_checks": [
+      {
+        "layer": "2_data_level",
+        "check": "row_aligned_diff",
+        "message": "Row-aligned diff skipped: no primary_key configured.",
+        "to_enable": "Set primary_key in ValidationConfig to enable cell-by-cell row comparison. Example: primary_key=['order_id']. Without a key we have no way to match rows between both datasets."
+      },
+      {
+        "layer": "3_business_rules",
+        "check": "grand_total_aggregations",
+        "message": "Grand total aggregations skipped: no aggregation_columns configured.",
+        "to_enable": "Set aggregation_columns in ValidationConfig. Example: aggregation_columns=['revenue', 'qty']"
+      },
+      {
+        "layer": "3_business_rules",
+        "check": "group_by_consistency",
+        "message": "Group-by consistency skipped: no group_by_columns configured.",
+        "to_enable": "Set group_by_columns and aggregation_columns. Example: group_by_columns=['region'], aggregation_columns=['revenue']"
+      }
+    ],
+    "layer_statuses": {
+      "1_structural": "PASSED",
+      "2_data_level": "FAILED",
+      "3_business_rules": "FAILED",
+      "4_statistical": "FAILED"
+    }
+  },
+  "ai_narrative": ""
+}

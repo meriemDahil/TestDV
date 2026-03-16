@@ -1,0 +1,482 @@
+{
+  "run_id": "t2_float",
+  "timestamp": "2026-03-16T00:25:18.207657",
+  "source_label": "Talend",
+  "target_label": "SQL",
+  "overall_status": "FAILED",
+  "total_duration_ms": 137.74540007580072,
+  "layers": [
+    {
+      "layer_name": "1_structural",
+      "status": "PASSED",
+      "checks": [
+        {
+          "layer": "1_structural",
+          "check_name": "column_count",
+          "status": "PASSED",
+          "message": "Both datasets have 6 columns.",
+          "details": {
+            "source_count": 6,
+            "target_count": 6
+          },
+          "duration_ms": 0.008699949830770493,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "1_structural",
+          "check_name": "column_names",
+          "status": "PASSED",
+          "message": "All column names match.",
+          "details": {
+            "missing_in_target": [],
+            "extra_in_target": []
+          },
+          "duration_ms": 0.008500064723193645,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "1_structural",
+          "check_name": "data_types",
+          "status": "PASSED",
+          "message": "All column dtypes are compatible.",
+          "details": {
+            "mismatches": {}
+          },
+          "duration_ms": 1.3029000256210566,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "1_structural",
+          "check_name": "null_counts",
+          "status": "PASSED",
+          "message": "Null counts match for all columns.",
+          "details": {
+            "null_issues": {}
+          },
+          "duration_ms": 3.0007000314071774,
+          "skipped_reason": ""
+        }
+      ],
+      "duration_ms": 4.412499954923987
+    },
+    {
+      "layer_name": "2_data_level",
+      "status": "FAILED",
+      "checks": [
+        {
+          "layer": "2_data_level",
+          "check_name": "row_count",
+          "status": "PASSED",
+          "message": "Row counts match: 300 rows.",
+          "details": {
+            "source_rows": 300,
+            "target_rows": 300,
+            "delta": 0
+          },
+          "duration_ms": 0.0171000137925148,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "2_data_level",
+          "check_name": "full_dataset_hash",
+          "status": "FAILED",
+          "message": "Full dataset hash mismatch \u2014 content differs.",
+          "details": {
+            "source_hash": "90197878c7dec846b76180cb8f1a44b43da7d930ecc889408774b0423a2abaf1",
+            "target_hash": "a00982ec2715c918146b1fa44f5f09e6e9ce3d95514f1400a55e8824b14a2509"
+          },
+          "duration_ms": 26.558100013062358,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "2_data_level",
+          "check_name": "column_level_hash",
+          "status": "FAILED",
+          "message": "Hash mismatch in 1 column(s): ['revenue'].",
+          "details": {
+            "column_hashes": {
+              "order_id": {
+                "match": true,
+                "source_hash": "919d5c37a8c15e6d204fe5459bbe6cdcf686d09b14cd797026736521422f4d33",
+                "target_hash": "919d5c37a8c15e6d204fe5459bbe6cdcf686d09b14cd797026736521422f4d33"
+              },
+              "product": {
+                "match": true,
+                "source_hash": "5362eb667583df3349b5d8e407544918b8d5de31bb047354bb262313100ea0c6",
+                "target_hash": "5362eb667583df3349b5d8e407544918b8d5de31bb047354bb262313100ea0c6"
+              },
+              "qty": {
+                "match": true,
+                "source_hash": "9538f1f3bcbdbc9e500421bea905607b4bccc9559224161ebf1f0e2e066da7f0",
+                "target_hash": "9538f1f3bcbdbc9e500421bea905607b4bccc9559224161ebf1f0e2e066da7f0"
+              },
+              "region": {
+                "match": true,
+                "source_hash": "e4a5121fabd358910ed33e33f5078c901062f906a1411d732c0f187d83085ecd",
+                "target_hash": "e4a5121fabd358910ed33e33f5078c901062f906a1411d732c0f187d83085ecd"
+              },
+              "revenue": {
+                "match": false,
+                "source_hash": "8dba0fed73cfd6c402b40917f8022abd0ab6e9265aa5965c3d714e4305433a8d",
+                "target_hash": "89728bc937eadd8271c30e12d10639856f7226b81c17d88dd543c8cc1145b9ce"
+              },
+              "unit_price": {
+                "match": true,
+                "source_hash": "225c61a905b25ff1e69956bac0fcb09b44468b35f5c3ef0db2d9e1ee07a5fa4d",
+                "target_hash": "225c61a905b25ff1e69956bac0fcb09b44468b35f5c3ef0db2d9e1ee07a5fa4d"
+              }
+            },
+            "mismatched_columns": [
+              "revenue"
+            ]
+          },
+          "duration_ms": 15.886700013652444,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "2_data_level",
+          "check_name": "duplicate_rows",
+          "status": "PASSED",
+          "message": "Duplicate row counts match (0).",
+          "details": {
+            "source_duplicates": 0,
+            "target_duplicates": 0
+          },
+          "duration_ms": 2.1400999976322055,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "2_data_level",
+          "check_name": "bucketed_checksum",
+          "status": "FAILED",
+          "message": "Checksum mismatch in 10 bucket(s).",
+          "details": {
+            "mismatched_buckets": [
+              {
+                "bucket": 0,
+                "source_hash": "635a415da0dfee16982df6bdc50d8353",
+                "target_hash": "52600193f5bc30da4e57e01b566b64e0",
+                "source_rows": 30,
+                "target_rows": 30
+              },
+              {
+                "bucket": 1,
+                "source_hash": "09204be84ad3889f1defa426fa59269a",
+                "target_hash": "5ae40e0c7a61d3fe898246cfc5b3b1c2",
+                "source_rows": 30,
+                "target_rows": 30
+              },
+              {
+                "bucket": 2,
+                "source_hash": "0569000d5fdb3dbb826d23550e2ce949",
+                "target_hash": "7a4761b18911daa6c6a1328eca08398e",
+                "source_rows": 30,
+                "target_rows": 30
+              },
+              {
+                "bucket": 3,
+                "source_hash": "71a29303775815fb8f9681aecd0b3d00",
+                "target_hash": "ddc6b8dafc67a8cef4cc1be050d24fac",
+                "source_rows": 30,
+                "target_rows": 30
+              },
+              {
+                "bucket": 4,
+                "source_hash": "7a5a20f7497f145696881e2bee37aafe",
+                "target_hash": "10ede0c50360cd88e362fd374e11b008",
+                "source_rows": 30,
+                "target_rows": 30
+              },
+              {
+                "bucket": 5,
+                "source_hash": "d2817ce8d4164a563b460af3999017ad",
+                "target_hash": "0cf542abbaebe51c8c17e48ad795859b",
+                "source_rows": 30,
+                "target_rows": 30
+              },
+              {
+                "bucket": 6,
+                "source_hash": "491f8585507208aa07c65c9f3ff796bd",
+                "target_hash": "7f2f5fe1c127781b0621fe87a8eaa65c",
+                "source_rows": 30,
+                "target_rows": 30
+              },
+              {
+                "bucket": 7,
+                "source_hash": "2987dec354eab9ee7d72cb01dc686502",
+                "target_hash": "fdc6fa9bba8aba153f4a3a5b01853d02",
+                "source_rows": 30,
+                "target_rows": 30
+              },
+              {
+                "bucket": 8,
+                "source_hash": "b074b9276f3bcbf01aebd501e3526086",
+                "target_hash": "47ab0c6f392c123c64429a9a2ac2437e",
+                "source_rows": 30,
+                "target_rows": 30
+              },
+              {
+                "bucket": 9,
+                "source_hash": "0d7c66feafcff6da85e6fd9aa5809a40",
+                "target_hash": "e04cef2fbc5dd5c7939ad7b2c6956196",
+                "source_rows": 30,
+                "target_rows": 30
+              }
+            ]
+          },
+          "duration_ms": 47.395800007507205,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "2_data_level",
+          "check_name": "row_aligned_diff",
+          "status": "SKIPPED",
+          "message": "Row-aligned diff skipped: no primary_key configured.",
+          "details": {},
+          "duration_ms": 0.003600027412176132,
+          "skipped_reason": "Set primary_key in ValidationConfig to enable cell-by-cell row comparison. Example: primary_key=['order_id']. Without a key we have no way to match rows between both datasets."
+        }
+      ],
+      "duration_ms": 92.08889992441982
+    },
+    {
+      "layer_name": "3_business_rules",
+      "status": "PASSED",
+      "checks": [
+        {
+          "layer": "3_business_rules",
+          "check_name": "grand_total_aggregations",
+          "status": "PASSED",
+          "message": "Global SUM/COUNT/AVG match for all 1 column(s).",
+          "details": {
+            "issues": []
+          },
+          "duration_ms": 1.0118000209331512,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "3_business_rules",
+          "check_name": "float_tolerance",
+          "status": "PASSED",
+          "message": "All 3 numeric column(s) within tolerance.",
+          "details": {
+            "issues": [],
+            "columns_checked": [
+              "qty",
+              "unit_price",
+              "revenue"
+            ]
+          },
+          "duration_ms": 5.672200000844896,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "3_business_rules",
+          "check_name": "group_by_consistency",
+          "status": "SKIPPED",
+          "message": "Group-by consistency skipped: no group_by_columns configured.",
+          "details": {},
+          "duration_ms": 0.0,
+          "skipped_reason": "Set group_by_columns and aggregation_columns. Example: group_by_columns=['region'], aggregation_columns=['revenue']"
+        },
+        {
+          "layer": "3_business_rules",
+          "check_name": "custom_rules",
+          "status": "SKIPPED",
+          "message": "No custom business rules defined.",
+          "details": {},
+          "duration_ms": 0.0,
+          "skipped_reason": "Add BusinessRule entries to ValidationConfig.business_rules. Example: BusinessRule(name='min_revenue', rule_fn=lambda df: df['revenue'].min())"
+        }
+      ],
+      "duration_ms": 7.327400031499565
+    },
+    {
+      "layer_name": "4_statistical",
+      "status": "PASSED",
+      "checks": [
+        {
+          "layer": "4_statistical",
+          "check_name": "per_column_statistics",
+          "status": "PASSED",
+          "message": "Statistical profiles match for all 3 numeric column(s).",
+          "details": {
+            "tolerance": 0.05,
+            "columns_checked": [
+              "qty",
+              "revenue",
+              "unit_price"
+            ],
+            "column_profiles": {
+              "qty": {
+                "source": {
+                  "min": 1.0,
+                  "max": 99.0,
+                  "mean": 51.38,
+                  "stddev": 29.39243640336324,
+                  "non_null": 300,
+                  "null_ratio": 0.0,
+                  "p50": 54.0,
+                  "p95": 95.0,
+                  "p99": 98.00999999999999
+                },
+                "target": {
+                  "min": 1.0,
+                  "max": 99.0,
+                  "mean": 51.38,
+                  "stddev": 29.39243640336324,
+                  "non_null": 300,
+                  "null_ratio": 0.0,
+                  "p50": 54.0,
+                  "p95": 95.0,
+                  "p99": 98.00999999999999
+                },
+                "issues": []
+              },
+              "revenue": {
+                "source": {
+                  "min": 108.1,
+                  "max": 48973.32,
+                  "mean": 13207.062533333332,
+                  "stddev": 11505.709994865072,
+                  "non_null": 300,
+                  "null_ratio": 0.0,
+                  "p50": 10213.69,
+                  "p95": 34584.50550000001,
+                  "p99": 45804.49519999999
+                },
+                "target": {
+                  "min": 108.096734,
+                  "max": 48973.3161,
+                  "mean": 13207.06250295,
+                  "stddev": 11505.709841598627,
+                  "non_null": 300,
+                  "null_ratio": 0.0,
+                  "p50": 10213.6877305,
+                  "p95": 34584.504331000004,
+                  "p99": 45804.49903086999
+                },
+                "issues": []
+              },
+              "unit_price": {
+                "source": {
+                  "min": 10.6,
+                  "max": 499.38,
+                  "mean": 254.6099,
+                  "stddev": 140.75135156086674,
+                  "non_null": 300,
+                  "null_ratio": 0.0,
+                  "p50": 252.81,
+                  "p95": 479.649,
+                  "p99": 497.4038
+                },
+                "target": {
+                  "min": 10.6,
+                  "max": 499.38,
+                  "mean": 254.6099,
+                  "stddev": 140.75135156086674,
+                  "non_null": 300,
+                  "null_ratio": 0.0,
+                  "p50": 252.81,
+                  "p95": 479.649,
+                  "p99": 497.4038
+                },
+                "issues": []
+              }
+            },
+            "issues": []
+          },
+          "duration_ms": 25.86470008827746,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "4_statistical",
+          "check_name": "null_ratio",
+          "status": "PASSED",
+          "message": "Null ratios match for all columns.",
+          "details": {
+            "issues": []
+          },
+          "duration_ms": 3.635499975644052,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "4_statistical",
+          "check_name": "cardinality",
+          "status": "PASSED",
+          "message": "Cardinality matches for all columns.",
+          "details": {
+            "issues": []
+          },
+          "duration_ms": 1.8881000578403473,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "4_statistical",
+          "check_name": "distribution_confidence",
+          "status": "PASSED",
+          "message": "Distribution confidence: 100.0% (\u2265 95% threshold).",
+          "details": {
+            "score": 1.0,
+            "threshold": 0.95
+          },
+          "duration_ms": 0.05719996988773346,
+          "skipped_reason": ""
+        }
+      ],
+      "duration_ms": 31.78209997713566
+    }
+  ],
+  "summary": {
+    "total_checks": 18,
+    "passed": 12,
+    "failed": 3,
+    "skipped": 3,
+    "pass_rate": 0.8,
+    "equivalent": false,
+    "failures": [
+      {
+        "layer": "2_data_level",
+        "check": "full_dataset_hash",
+        "message": "Full dataset hash mismatch \u2014 content differs."
+      },
+      {
+        "layer": "2_data_level",
+        "check": "column_level_hash",
+        "message": "Hash mismatch in 1 column(s): ['revenue']."
+      },
+      {
+        "layer": "2_data_level",
+        "check": "bucketed_checksum",
+        "message": "Checksum mismatch in 10 bucket(s)."
+      }
+    ],
+    "skipped_checks": [
+      {
+        "layer": "2_data_level",
+        "check": "row_aligned_diff",
+        "message": "Row-aligned diff skipped: no primary_key configured.",
+        "to_enable": "Set primary_key in ValidationConfig to enable cell-by-cell row comparison. Example: primary_key=['order_id']. Without a key we have no way to match rows between both datasets."
+      },
+      {
+        "layer": "3_business_rules",
+        "check": "group_by_consistency",
+        "message": "Group-by consistency skipped: no group_by_columns configured.",
+        "to_enable": "Set group_by_columns and aggregation_columns. Example: group_by_columns=['region'], aggregation_columns=['revenue']"
+      },
+      {
+        "layer": "3_business_rules",
+        "check": "custom_rules",
+        "message": "No custom business rules defined.",
+        "to_enable": "Add BusinessRule entries to ValidationConfig.business_rules. Example: BusinessRule(name='min_revenue', rule_fn=lambda df: df['revenue'].min())"
+      }
+    ],
+    "layer_statuses": {
+      "1_structural": "PASSED",
+      "2_data_level": "FAILED",
+      "3_business_rules": "PASSED",
+      "4_statistical": "PASSED"
+    }
+  },
+  "ai_narrative": ""
+}

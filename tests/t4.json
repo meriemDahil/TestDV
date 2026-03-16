@@ -1,0 +1,68 @@
+{
+  "run_id": "t4_schema",
+  "timestamp": "2026-03-16T00:25:18.461231",
+  "source_label": "Talend",
+  "target_label": "SQL",
+  "overall_status": "FAILED",
+  "total_duration_ms": 2.029099967330694,
+  "layers": [
+    {
+      "layer_name": "1_structural",
+      "status": "FAILED",
+      "checks": [
+        {
+          "layer": "1_structural",
+          "check_name": "column_count",
+          "status": "FAILED",
+          "message": "Column count mismatch: Talend=6, SQL=7.",
+          "details": {
+            "source_count": 6,
+            "target_count": 7
+          },
+          "duration_ms": 0.013299984857439995,
+          "skipped_reason": ""
+        },
+        {
+          "layer": "1_structural",
+          "check_name": "column_names",
+          "status": "FAILED",
+          "message": "Missing in SQL: []. Unexpected in SQL: ['ghost_column'].",
+          "details": {
+            "missing_in_target": [],
+            "extra_in_target": [
+              "ghost_column"
+            ]
+          },
+          "duration_ms": 0.022699940018355846,
+          "skipped_reason": ""
+        }
+      ],
+      "duration_ms": 0.14600006397813559
+    }
+  ],
+  "summary": {
+    "total_checks": 2,
+    "passed": 0,
+    "failed": 2,
+    "skipped": 0,
+    "pass_rate": 0.0,
+    "equivalent": false,
+    "failures": [
+      {
+        "layer": "1_structural",
+        "check": "column_count",
+        "message": "Column count mismatch: Talend=6, SQL=7."
+      },
+      {
+        "layer": "1_structural",
+        "check": "column_names",
+        "message": "Missing in SQL: []. Unexpected in SQL: ['ghost_column']."
+      }
+    ],
+    "skipped_checks": [],
+    "layer_statuses": {
+      "1_structural": "FAILED"
+    }
+  },
+  "ai_narrative": ""
+}
