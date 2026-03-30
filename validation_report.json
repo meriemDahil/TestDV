@@ -1,437 +1,1253 @@
-{
-  "run_id": "run_001",
-  "timestamp": "2026-03-16T00:03:52.329274",
-  "source_label": "Talend",
-  "target_label": "SQL",
-  "overall_status": "PASSED",
-  "total_duration_ms": 428.6648000124842,
-  "layers": [
-    {
-      "layer_name": "1_structural",
-      "status": "PASSED",
-      "checks": [
-        {
-          "layer": "1_structural",
-          "check_name": "column_count",
-          "status": "PASSED",
-          "message": "Both datasets have 14 columns.",
-          "details": {
-            "source_count": 14,
-            "target_count": 14
-          },
-          "duration_ms": 0.005799927748739719,
-          "skipped_reason": ""
-        },
-        {
-          "layer": "1_structural",
-          "check_name": "column_names",
-          "status": "PASSED",
-          "message": "All column names match.",
-          "details": {
-            "missing_in_target": [],
-            "extra_in_target": []
-          },
-          "duration_ms": 0.010899966582655907,
-          "skipped_reason": ""
-        },
-        {
-          "layer": "1_structural",
-          "check_name": "data_types",
-          "status": "PASSED",
-          "message": "All column dtypes are compatible.",
-          "details": {
-            "mismatches": {}
-          },
-          "duration_ms": 2.228099969215691,
-          "skipped_reason": ""
-        },
-        {
-          "layer": "1_structural",
-          "check_name": "null_counts",
-          "status": "PASSED",
-          "message": "Null counts match for all columns.",
-          "details": {
-            "null_issues": {}
-          },
-          "duration_ms": 9.158200002275407,
-          "skipped_reason": ""
-        }
-      ],
-      "duration_ms": 11.515600024722517
-    },
-    {
-      "layer_name": "2_data_level",
-      "status": "PASSED",
-      "checks": [
-        {
-          "layer": "2_data_level",
-          "check_name": "row_count",
-          "status": "PASSED",
-          "message": "Row counts match: 40 rows.",
-          "details": {
-            "source_rows": 40,
-            "target_rows": 40,
-            "delta": 0
-          },
-          "duration_ms": 0.02289994154125452,
-          "skipped_reason": ""
-        },
-        {
-          "layer": "2_data_level",
-          "check_name": "full_dataset_hash",
-          "status": "PASSED",
-          "message": "Full dataset hash matches \u2014 datasets are identical.",
-          "details": {
-            "source_hash": "8920e6001cb3bfb922d66aa5e13a2b6723918a7b16ec830403436dcedbc5283a",
-            "target_hash": "8920e6001cb3bfb922d66aa5e13a2b6723918a7b16ec830403436dcedbc5283a"
-          },
-          "duration_ms": 43.681600014679134,
-          "skipped_reason": ""
-        },
-        {
-          "layer": "2_data_level",
-          "check_name": "column_level_hash",
-          "status": "PASSED",
-          "message": "All 14 column hashes match.",
-          "details": {
-            "column_hashes": {
-              "country_code": {
-                "match": true,
-                "source_hash": "9a5771bad06048a2be5740b67a3f39559dce5412fc86227dae0046d30779f019",
-                "target_hash": "9a5771bad06048a2be5740b67a3f39559dce5412fc86227dae0046d30779f019"
-              },
-              "currency": {
-                "match": true,
-                "source_hash": "c8e6e35f18e947dd29f4d033da7ec8b93aba01f85e546eb30eef5bbe5b3c8cbf",
-                "target_hash": "c8e6e35f18e947dd29f4d033da7ec8b93aba01f85e546eb30eef5bbe5b3c8cbf"
-              },
-              "gross_amount": {
-                "match": true,
-                "source_hash": "265e66d20e8b0e06e6d885ca4a66b06c0295b847499fc1bea59b1d62dd894c4c",
-                "target_hash": "265e66d20e8b0e06e6d885ca4a66b06c0295b847499fc1bea59b1d62dd894c4c"
-              },
-              "invoice_id": {
-                "match": true,
-                "source_hash": "3c14a9bcd193c94094218a71c5073c0d8a425954f3b394a91e3678462b32d608",
-                "target_hash": "3c14a9bcd193c94094218a71c5073c0d8a425954f3b394a91e3678462b32d608"
-              },
-              "net_amount": {
-                "match": true,
-                "source_hash": "58544ba9156a7343beb620870cdde3e1da0a82386520ec27ab437d5c12e6f6d4",
-                "target_hash": "58544ba9156a7343beb620870cdde3e1da0a82386520ec27ab437d5c12e6f6d4"
-              },
-              "payment_date": {
-                "match": true,
-                "source_hash": "8ad2dfdd592427e31534ee65de7690d3e21d4a9cd66aab2637750f056f95029b",
-                "target_hash": "8ad2dfdd592427e31534ee65de7690d3e21d4a9cd66aab2637750f056f95029b"
-              },
-              "payment_method": {
-                "match": true,
-                "source_hash": "43e110d17ac0578a4fb2c0c5fe0d0f8457fb81661738e990cf22bd014b96fffe",
-                "target_hash": "43e110d17ac0578a4fb2c0c5fe0d0f8457fb81661738e990cf22bd014b96fffe"
-              },
-              "payment_status": {
-                "match": true,
-                "source_hash": "d785c76372a962b4ac242cc15b5cd00da0332e25aa19a50ed036fd69c5342f5d",
-                "target_hash": "d785c76372a962b4ac242cc15b5cd00da0332e25aa19a50ed036fd69c5342f5d"
-              },
-              "payment_terms": {
-                "match": true,
-                "source_hash": "4ed7a620f0f85a5b8f473e96701cbe7200fc6e284d59b1a184ae64bd47ee1a15",
-                "target_hash": "4ed7a620f0f85a5b8f473e96701cbe7200fc6e284d59b1a184ae64bd47ee1a15"
-              },
-              "posting_date": {
-                "match": true,
-                "source_hash": "d5d945c0f1caa8a422cd2c45883812e36a80814cd46151dd3bfb55141c5eb0fe",
-                "target_hash": "d5d945c0f1caa8a422cd2c45883812e36a80814cd46151dd3bfb55141c5eb0fe"
-              },
-              "tax_code": {
-                "match": true,
-                "source_hash": "c8aca107cfcf960c09e245c6b0d869dff7f078a56fd6d8d10f9c496f49645d06",
-                "target_hash": "c8aca107cfcf960c09e245c6b0d869dff7f078a56fd6d8d10f9c496f49645d06"
-              },
-              "tax_rate": {
-                "match": true,
-                "source_hash": "58544ba9156a7343beb620870cdde3e1da0a82386520ec27ab437d5c12e6f6d4",
-                "target_hash": "58544ba9156a7343beb620870cdde3e1da0a82386520ec27ab437d5c12e6f6d4"
-              },
-              "vendor_id": {
-                "match": true,
-                "source_hash": "8b3eb54d8b18bb4b8d6954708e7a0444515ffd064a7bb823753932c9064f6d82",
-                "target_hash": "8b3eb54d8b18bb4b8d6954708e7a0444515ffd064a7bb823753932c9064f6d82"
-              },
-              "vendor_name": {
-                "match": true,
-                "source_hash": "b5d9adad3affb70461bef27c69b339051ff2992198f3d7d236f8ae85f4da1568",
-                "target_hash": "b5d9adad3affb70461bef27c69b339051ff2992198f3d7d236f8ae85f4da1568"
-              }
-            },
-            "mismatched_columns": []
-          },
-          "duration_ms": 23.857500054873526,
-          "skipped_reason": ""
-        },
-        {
-          "layer": "2_data_level",
-          "check_name": "duplicate_rows",
-          "status": "PASSED",
-          "message": "Duplicate row counts match (0).",
-          "details": {
-            "source_duplicates": 0,
-            "target_duplicates": 0
-          },
-          "duration_ms": 5.361499963328242,
-          "skipped_reason": ""
-        },
-        {
-          "layer": "2_data_level",
-          "check_name": "bucketed_checksum",
-          "status": "PASSED",
-          "message": "All 10 bucket checksums match.",
-          "details": {
-            "mismatched_buckets": []
-          },
-          "duration_ms": 69.245700025931,
-          "skipped_reason": ""
-        },
-        {
-          "layer": "2_data_level",
-          "check_name": "row_aligned_diff",
-          "status": "SKIPPED",
-          "message": "Row-aligned diff skipped: no primary_key configured.",
-          "details": {},
-          "duration_ms": 0.003800028935074806,
-          "skipped_reason": "Set primary_key in ValidationConfig to enable cell-by-cell row comparison. Example: primary_key=['order_id']. Without a key we have no way to match rows between both datasets."
-        }
-      ],
-      "duration_ms": 142.3182999715209
-    },
-    {
-      "layer_name": "3_business_rules",
-      "status": "PASSED",
-      "checks": [
-        {
-          "layer": "3_business_rules",
-          "check_name": "grand_total_aggregations",
-          "status": "SKIPPED",
-          "message": "Grand total aggregations skipped: no aggregation_columns configured.",
-          "details": {},
-          "duration_ms": 0.0,
-          "skipped_reason": "Set aggregation_columns in ValidationConfig. Example: aggregation_columns=['revenue', 'qty']"
-        },
-        {
-          "layer": "3_business_rules",
-          "check_name": "float_tolerance",
-          "status": "PASSED",
-          "message": "All 3 numeric column(s) within tolerance.",
-          "details": {
-            "issues": [],
-            "columns_checked": [
-              "gross_amount",
-              "posting_date",
-              "payment_date"
-            ]
-          },
-          "duration_ms": 8.01550003234297,
-          "skipped_reason": ""
-        },
-        {
-          "layer": "3_business_rules",
-          "check_name": "group_by_consistency",
-          "status": "SKIPPED",
-          "message": "Group-by consistency skipped: no group_by_columns configured.",
-          "details": {},
-          "duration_ms": 0.0,
-          "skipped_reason": "Set group_by_columns and aggregation_columns. Example: group_by_columns=['region'], aggregation_columns=['revenue']"
-        },
-        {
-          "layer": "3_business_rules",
-          "check_name": "custom_rules",
-          "status": "SKIPPED",
-          "message": "No custom business rules defined.",
-          "details": {},
-          "duration_ms": 0.0,
-          "skipped_reason": "Add BusinessRule entries to ValidationConfig.business_rules. Example: BusinessRule(name='min_revenue', rule_fn=lambda df: df['revenue'].min())"
-        }
-      ],
-      "duration_ms": 8.621999993920326
-    },
-    {
-      "layer_name": "4_statistical",
-      "status": "PASSED",
-      "checks": [
-        {
-          "layer": "4_statistical",
-          "check_name": "per_column_statistics",
-          "status": "PASSED",
-          "message": "Statistical profiles match for all 3 numeric column(s).",
-          "details": {
-            "tolerance": 0.01,
-            "columns_checked": [
-              "gross_amount",
-              "payment_date",
-              "posting_date"
-            ],
-            "column_profiles": {
-              "gross_amount": {
-                "source": {
-                  "min": 3268.93,
-                  "max": 47150.33,
-                  "mean": 25106.297250000003,
-                  "stddev": 13324.57126613778,
-                  "non_null": 40,
-                  "null_ratio": 0.0,
-                  "p50": 26075.934999999998,
-                  "p95": 44397.521499999995,
-                  "p99": 46821.3767
-                },
-                "target": {
-                  "min": 3268.93,
-                  "max": 47150.33,
-                  "mean": 25106.297250000003,
-                  "stddev": 13324.57126613778,
-                  "non_null": 40,
-                  "null_ratio": 0.0,
-                  "p50": 26075.934999999998,
-                  "p95": 44397.521499999995,
-                  "p99": 46821.3767
-                },
-                "issues": []
-              },
-              "payment_date": {
-                "source": {
-                  "min": 20260101.0,
-                  "max": 20260301.0,
-                  "mean": 20260168.45,
-                  "stddev": 64.03562710289906,
-                  "non_null": 40,
-                  "null_ratio": 0.0,
-                  "p50": 20260129.5,
-                  "p95": 20260301.0,
-                  "p99": 20260301.0
-                },
-                "target": {
-                  "min": 20260101.0,
-                  "max": 20260301.0,
-                  "mean": 20260168.45,
-                  "stddev": 64.03562710289906,
-                  "non_null": 40,
-                  "null_ratio": 0.0,
-                  "p50": 20260129.5,
-                  "p95": 20260301.0,
-                  "p99": 20260301.0
-                },
-                "issues": []
-              },
-              "posting_date": {
-                "source": {
-                  "min": 20260104.0,
-                  "max": 20260302.0,
-                  "mean": 20260169.35,
-                  "stddev": 56.52707542771213,
-                  "non_null": 40,
-                  "null_ratio": 0.0,
-                  "p50": 20260201.5,
-                  "p95": 20260227.85,
-                  "p99": 20260301.61
-                },
-                "target": {
-                  "min": 20260104.0,
-                  "max": 20260302.0,
-                  "mean": 20260169.35,
-                  "stddev": 56.52707542771213,
-                  "non_null": 40,
-                  "null_ratio": 0.0,
-                  "p50": 20260201.5,
-                  "p95": 20260227.85,
-                  "p99": 20260301.61
-                },
-                "issues": []
-              }
-            },
-            "issues": []
-          },
-          "duration_ms": 26.205799891613424,
-          "skipped_reason": ""
-        },
-        {
-          "layer": "4_statistical",
-          "check_name": "null_ratio",
-          "status": "PASSED",
-          "message": "Null ratios match for all columns.",
-          "details": {
-            "issues": []
-          },
-          "duration_ms": 8.477799943648279,
-          "skipped_reason": ""
-        },
-        {
-          "layer": "4_statistical",
-          "check_name": "cardinality",
-          "status": "PASSED",
-          "message": "Cardinality matches for all columns.",
-          "details": {
-            "issues": []
-          },
-          "duration_ms": 2.657900098711252,
-          "skipped_reason": ""
-        },
-        {
-          "layer": "4_statistical",
-          "check_name": "distribution_confidence",
-          "status": "PASSED",
-          "message": "Distribution confidence: 100.0% (\u2265 95% threshold).",
-          "details": {
-            "score": 1.0,
-            "threshold": 0.95
-          },
-          "duration_ms": 0.04950002767145634,
-          "skipped_reason": ""
-        }
-      ],
-      "duration_ms": 38.09789998922497
-    }
-  ],
-  "summary": {
-    "total_checks": 18,
-    "passed": 14,
-    "failed": 0,
-    "skipped": 4,
-    "pass_rate": 1.0,
-    "equivalent": true,
-    "failures": [],
-    "skipped_checks": [
-      {
-        "layer": "2_data_level",
-        "check": "row_aligned_diff",
-        "message": "Row-aligned diff skipped: no primary_key configured.",
-        "to_enable": "Set primary_key in ValidationConfig to enable cell-by-cell row comparison. Example: primary_key=['order_id']. Without a key we have no way to match rows between both datasets."
-      },
-      {
-        "layer": "3_business_rules",
-        "check": "grand_total_aggregations",
-        "message": "Grand total aggregations skipped: no aggregation_columns configured.",
-        "to_enable": "Set aggregation_columns in ValidationConfig. Example: aggregation_columns=['revenue', 'qty']"
-      },
-      {
-        "layer": "3_business_rules",
-        "check": "group_by_consistency",
-        "message": "Group-by consistency skipped: no group_by_columns configured.",
-        "to_enable": "Set group_by_columns and aggregation_columns. Example: group_by_columns=['region'], aggregation_columns=['revenue']"
-      },
-      {
-        "layer": "3_business_rules",
-        "check": "custom_rules",
-        "message": "No custom business rules defined.",
-        "to_enable": "Add BusinessRule entries to ValidationConfig.business_rules. Example: BusinessRule(name='min_revenue', rule_fn=lambda df: df['revenue'].min())"
-      }
-    ],
-    "layer_statuses": {
-      "1_structural": "PASSED",
-      "2_data_level": "PASSED",
-      "3_business_rules": "PASSED",
-      "4_statistical": "PASSED"
-    }
-  },
-  "ai_narrative": ""
-}
+"""
+Unit tests for Layer 1 – Structural Validation.
+
+Coverage:
+  1. column_count       – match / mismatch
+  2. column_names       – match / missing / extra / both
+  3. data_types         – compatible / mismatched families / same family different dtype
+  4. null_counts        – match / mismatch (single + multiple columns)
+  5. column_order       – enabled+match / enabled+mismatch / disabled
+  6. early-exit         – column-name failure stops dtype & null checks
+"""
+from __future__ import annotations
+
+from unittest.mock import MagicMock
+
+import pandas as pd
+import pytest
+
+from core.models import Status, ValidationConfig
+from layers import layer_1_structural as layer
+
+
+# ── Helpers ──────────────────────────────────────────────────────────────────
+
+def make_config(
+    check_column_order: bool = False,
+    source_label: str = "source",
+    target_label: str = "target",
+) -> ValidationConfig:
+    cfg = MagicMock(spec=ValidationConfig)
+    cfg.check_column_order = check_column_order
+    cfg.source_label = source_label
+    cfg.target_label = target_label
+    return cfg
+
+
+def check(result, name: str):
+    """Return the CheckResult with the given check_name."""
+    for c in result.checks:
+        if c.check_name == name:
+            return c
+    raise KeyError(f"Check '{name}' not found in results.")
+
+
+# ── Fixtures ─────────────────────────────────────────────────────────────────
+
+@pytest.fixture
+def base_src():
+    return pd.DataFrame({
+        "id":         [1, 2, 3],
+        "name":       ["Alice", "Bob", "Carol"],
+        "score":      [9.5, 8.0, 7.2],
+        "active":     [True, False, True],
+        "created_at": pd.to_datetime(["2024-01-01", "2024-01-02", "2024-01-03"]),
+    })
+
+
+@pytest.fixture
+def base_tgt(base_src):
+    """Identical copy of src — all checks should pass."""
+    return base_src.copy()
+
+
+@pytest.fixture
+def cfg():
+    return make_config()
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 1. column_count
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestColumnCount:
+
+    def test_equal_column_counts_passes(self, base_src, base_tgt, cfg):
+        result = layer.run(base_src, base_tgt, cfg)
+        c = check(result, "column_count")
+        assert c.status == Status.PASSED
+        assert c.details["source_count"] == c.details["target_count"]
+
+    def test_extra_target_column_fails(self, base_src, base_tgt, cfg):
+        base_tgt["extra"] = 0
+        result = layer.run(base_src, base_tgt, cfg)
+        c = check(result, "column_count")
+        assert c.status == Status.FAILED
+        assert c.details["source_count"] == 5
+        assert c.details["target_count"] == 6
+
+    def test_missing_target_column_fails(self, base_src, base_tgt, cfg):
+        base_tgt = base_tgt.drop(columns=["score"])
+        result = layer.run(base_src, base_tgt, cfg)
+        c = check(result, "column_count")
+        assert c.status == Status.FAILED
+
+    def test_empty_dataframes_pass(self, cfg):
+        src = pd.DataFrame()
+        tgt = pd.DataFrame()
+        result = layer.run(src, tgt, cfg)
+        c = check(result, "column_count")
+        assert c.status == Status.PASSED
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 2. column_names
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestColumnNames:
+
+    def test_identical_columns_passes(self, base_src, base_tgt, cfg):
+        result = layer.run(base_src, base_tgt, cfg)
+        c = check(result, "column_names")
+        assert c.status == Status.PASSED
+        assert c.details["missing_in_target"] == []
+        assert c.details["extra_in_target"] == []
+
+    def test_renamed_column_fails(self, base_src, base_tgt, cfg):
+        base_tgt = base_tgt.rename(columns={"score": "points"})
+        result = layer.run(base_src, base_tgt, cfg)
+        c = check(result, "column_names")
+        assert c.status == Status.FAILED
+        assert "score" in c.details["missing_in_target"]
+        assert "points" in c.details["extra_in_target"]
+
+    def test_missing_column_in_target_reported(self, base_src, cfg):
+        tgt = base_src.drop(columns=["name"]).copy()
+        tgt["bonus"] = 0
+        result = layer.run(base_src, tgt, cfg)
+        c = check(result, "column_names")
+        assert "name" in c.details["missing_in_target"]
+        assert "bonus" in c.details["extra_in_target"]
+
+    def test_case_sensitive_mismatch(self, base_src, base_tgt, cfg):
+        base_tgt = base_tgt.rename(columns={"id": "ID"})
+        result = layer.run(base_src, base_tgt, cfg)
+        c = check(result, "column_names")
+        assert c.status == Status.FAILED
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 3. data_types
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestDataTypes:
+
+    def test_identical_dtypes_passes(self, base_src, base_tgt, cfg):
+        result = layer.run(base_src, base_tgt, cfg)
+        c = check(result, "data_types")
+        assert c.status == Status.PASSED
+        assert c.details["mismatches"] == {}
+
+    def test_int_vs_float_fails(self, base_src, base_tgt, cfg):
+        # 'id' is integer in src; cast to float in tgt → family mismatch
+        base_tgt["id"] = base_tgt["id"].astype(float)
+        result = layer.run(base_src, base_tgt, cfg)
+        c = check(result, "data_types")
+        assert c.status == Status.FAILED
+        assert "id" in c.details["mismatches"]
+
+    def test_string_vs_int_fails(self, base_src, base_tgt, cfg):
+        base_tgt["id"] = base_tgt["id"].astype(str)
+        result = layer.run(base_src, base_tgt, cfg)
+        c = check(result, "data_types")
+        assert c.status == Status.FAILED
+        assert "id" in c.details["mismatches"]
+
+    def test_same_family_different_width_passes(self, base_src, base_tgt, cfg):
+        # int32 vs int64 are the same family → should PASS
+        base_src["id"] = base_src["id"].astype("int32")
+        base_tgt["id"] = base_tgt["id"].astype("int64")
+        result = layer.run(base_src, base_tgt, cfg)
+        c = check(result, "data_types")
+        assert c.status == Status.PASSED
+
+    def test_multiple_dtype_mismatches(self, base_src, base_tgt, cfg):
+        base_tgt["id"]    = base_tgt["id"].astype(float)
+        base_tgt["score"] = base_tgt["score"].astype(str)
+        result = layer.run(base_src, base_tgt, cfg)
+        c = check(result, "data_types")
+        assert c.status == Status.FAILED
+        assert len(c.details["mismatches"]) == 2
+
+    def test_datetime_vs_object_fails(self, base_src, base_tgt, cfg):
+        base_tgt["created_at"] = base_tgt["created_at"].astype(str)
+        result = layer.run(base_src, base_tgt, cfg)
+        c = check(result, "data_types")
+        assert "created_at" in c.details["mismatches"]
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 4. null_counts
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestNullCounts:
+
+    def test_no_nulls_passes(self, base_src, base_tgt, cfg):
+        result = layer.run(base_src, base_tgt, cfg)
+        c = check(result, "null_counts")
+        assert c.status == Status.PASSED
+
+    def test_equal_nulls_passes(self, base_src, cfg):
+        base_src.loc[0, "name"] = None
+        tgt = base_src.copy()
+        result = layer.run(base_src, tgt, cfg)
+        c = check(result, "null_counts")
+        assert c.status == Status.PASSED
+
+    def test_null_count_mismatch_fails(self, base_src, base_tgt, cfg):
+        base_tgt.loc[0, "score"] = None
+        result = layer.run(base_src, base_tgt, cfg)
+        c = check(result, "null_counts")
+        assert c.status == Status.FAILED
+        assert "score" in c.details["null_issues"]
+        assert c.details["null_issues"]["score"]["source_nulls"] == 0
+        assert c.details["null_issues"]["score"]["target_nulls"] == 1
+
+    def test_multiple_null_mismatches_reported(self, base_src, base_tgt, cfg):
+        base_tgt.loc[0, "name"]  = None
+        base_tgt.loc[1, "score"] = None
+        result = layer.run(base_src, base_tgt, cfg)
+        c = check(result, "null_counts")
+        assert c.status == Status.FAILED
+        assert len(c.details["null_issues"]) == 2
+
+    def test_src_has_more_nulls_than_tgt_fails(self, base_src, base_tgt, cfg):
+        base_src.loc[0, "name"] = None
+        result = layer.run(base_src, base_tgt, cfg)
+        c = check(result, "null_counts")
+        assert c.status == Status.FAILED
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 5. column_order
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestColumnOrder:
+
+    def test_order_check_disabled_by_default(self, base_src, base_tgt, cfg):
+        # Shuffle target columns — should not matter when flag is off
+        base_tgt = base_tgt[reversed(base_tgt.columns)]
+        result = layer.run(base_src, base_tgt, cfg)
+        check_names = [c.check_name for c in result.checks]
+        assert "column_order" not in check_names
+
+    def test_same_order_passes_when_enabled(self, base_src, base_tgt):
+        cfg = make_config(check_column_order=True)
+        result = layer.run(base_src, base_tgt, cfg)
+        c = check(result, "column_order")
+        assert c.status == Status.PASSED
+
+    def test_different_order_fails_when_enabled(self, base_src, base_tgt):
+        cfg = make_config(check_column_order=True)
+        cols = list(base_tgt.columns)
+        base_tgt = base_tgt[cols[::-1]]
+        result = layer.run(base_src, base_tgt, cfg)
+        c = check(result, "column_order")
+        assert c.status == Status.FAILED
+        assert c.details["source_order"] != c.details["target_order"]
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 6. Early-exit on column-name failure
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestEarlyExit:
+
+    def test_stops_after_column_name_failure(self, base_src, cfg):
+        """When column names differ, dtype and null checks must not be added."""
+        tgt = base_src.rename(columns={"id": "identifier"})
+        result = layer.run(base_src, tgt, cfg)
+
+        check_names = [c.check_name for c in result.checks]
+        assert "column_names" in check_names
+        assert "data_types"   not in check_names
+        assert "null_counts"  not in check_names
+
+    def test_overall_layer_status_failed_on_any_failure(self, base_src, base_tgt, cfg):
+        base_tgt.loc[0, "score"] = None  # null mismatch only
+        result = layer.run(base_src, base_tgt, cfg)
+        assert result.status == Status.FAILED
+
+    def test_overall_layer_status_passed_when_all_pass(self, base_src, base_tgt, cfg):
+        result = layer.run(base_src, base_tgt, cfg)
+        assert result.status == Status.PASSED
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 7. _dtype_family (unit tests for the private helper)
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestDtypeFamily:
+
+    @pytest.mark.parametrize("dtype, expected", [
+        ("int32",           "integer"),
+        ("int64",           "integer"),
+        ("uint8",           "integer"),
+        ("float32",         "float"),
+        ("float64",         "float"),
+        ("object",          "string"),
+        ("bool",            "boolean"),
+        ("datetime64[ns]",  "datetime"),
+        ("timedelta64[ns]", "timedelta"),
+    ])
+    def test_known_families(self, dtype, expected):
+        series = pd.Series([], dtype=dtype)
+        assert layer._dtype_family(series.dtype) == expected
+
+    def test_unknown_dtype_returns_dtype_string(self):
+        """Unrecognised kinds fall back to str(dtype)."""
+        # complex128 has kind 'c' — not in the map
+        series = pd.Series([], dtype="complex128")
+        result = layer._dtype_family(series.dtype)
+        assert result == "complex128"
+
+
+
+
+
+//////////////////////////////////////////////////////////////
+
+"""
+Unit tests for normalizers.py
+
+Coverage:
+  ColumnNormalizer   – normalize() static / apply() / duplicate deduplication
+  NullNormalizer     – all NULL_VALUES variants / non-null passthrough
+  StringTrimNormalizer – string stripping / non-object columns untouched
+  normalize()        – full chain integration
+  CSVReader          – encoding detection / separator detection / read()
+  load_csv()         – end-to-end smoke test via tmp file
+"""
+from __future__ import annotations
+
+import os
+import tempfile
+from unittest.mock import MagicMock, mock_open, patch
+
+import pandas as pd
+import pytest
+
+from normalizers import (
+    CSVReader,
+    ColumnNormalizer,
+    NullNormalizer,
+    StringTrimNormalizer,
+    load_csv,
+    normalize,
+)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 1. ColumnNormalizer.normalize  (static method)
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestColumnNormalizerStaticMethod:
+
+    @pytest.mark.parametrize("raw, expected", [
+        ("First Name ",   "first_name"),       # trailing space + title case
+        (" Last Name",    "last_name"),         # leading space
+        ("Montant-HT",    "montant_ht"),        # hyphen → underscore
+        ("UPPER_CASE",    "upper_case"),        # already underscored
+        ("mixedCase",     "mixedcase"),         # camel → lower (no separator added)
+        ("  spaces  ",    "spaces"),            # multiple surrounding spaces
+        ("café",          "cafe"),              # accented char via unidecode
+        ("naïve",         "naive"),             # accent removal
+        ("col-name end ", "col_name_end"),      # hyphen + trailing space
+        ("A",             "a"),                 # single char
+        ("",              ""),                  # empty string
+    ])
+    def test_normalize_variants(self, raw, expected):
+        assert ColumnNormalizer.normalize(raw) == expected
+
+    def test_multiple_hyphens_and_spaces(self):
+        assert ColumnNormalizer.normalize("first - last") == "first _ last"
+
+    def test_returns_string(self):
+        result = ColumnNormalizer.normalize("Col")
+        assert isinstance(result, str)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 2. ColumnNormalizer.apply
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestColumnNormalizerApply:
+
+    def test_basic_normalization(self):
+        df = pd.DataFrame(columns=["First Name ", "Last-Name", "AGE"])
+        result = ColumnNormalizer().apply(df)
+        assert list(result.columns) == ["first_name", "last_name", "age"]
+
+    def test_does_not_mutate_original(self):
+        df = pd.DataFrame(columns=["First Name"])
+        original_cols = list(df.columns)
+        ColumnNormalizer().apply(df)
+        assert list(df.columns) == original_cols
+
+    def test_data_preserved(self):
+        df = pd.DataFrame({"First Name ": ["Alice", "Bob"]})
+        result = ColumnNormalizer().apply(df)
+        assert list(result["first_name"]) == ["Alice", "Bob"]
+
+    def test_duplicate_after_normalization_deduped(self):
+        # "Name " and "Name" both → "name" after normalization
+        df = pd.DataFrame(columns=["Name ", "Name"])
+        result = ColumnNormalizer().apply(df)
+        assert list(result.columns) == ["name", "name_1"]
+
+    def test_triple_duplicate_deduped(self):
+        df = pd.DataFrame(columns=["col", "col", "col"])
+        result = ColumnNormalizer().apply(df)
+        assert list(result.columns) == ["col", "col_1", "col_2"]
+
+    def test_no_false_dedup_for_unique_names(self):
+        df = pd.DataFrame(columns=["alpha", "beta", "gamma"])
+        result = ColumnNormalizer().apply(df)
+        assert list(result.columns) == ["alpha", "beta", "gamma"]
+
+    def test_empty_dataframe(self):
+        df = pd.DataFrame()
+        result = ColumnNormalizer().apply(df)
+        assert list(result.columns) == []
+
+    def test_accented_column_names(self):
+        df = pd.DataFrame(columns=["Prénom", "Âge"])
+        result = ColumnNormalizer().apply(df)
+        assert list(result.columns) == ["prenom", "age"]
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 3. NullNormalizer
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestNullNormalizer:
+
+    @pytest.mark.parametrize("value", [
+        "", " ", "null", "Null", "NULL",
+        "none", "None", "NONE",
+        "na", "NA", "n/a", "N/A",
+        "?", "nan", "NaN", "NAN",
+        "nil", "n.a.", "nd", "#n/a", "#N/A",
+    ])
+    def test_null_like_strings_become_none(self, value):
+        df = pd.DataFrame({"col": [value]})
+        result = NullNormalizer().apply(df)
+        assert result["col"].iloc[0] is None
+
+    def test_actual_none_remains_none(self):
+        df = pd.DataFrame({"col": [None]})
+        result = NullNormalizer().apply(df)
+        assert result["col"].iloc[0] is None
+
+    def test_real_values_untouched(self):
+        df = pd.DataFrame({"col": ["Alice", "Bob", "0", "false"]})
+        result = NullNormalizer().apply(df)
+        assert list(result["col"]) == ["Alice", "Bob", "0", "false"]
+
+    def test_numeric_values_untouched(self):
+        df = pd.DataFrame({"num": [1, 2, 3]})
+        result = NullNormalizer().apply(df)
+        assert list(result["num"]) == [1, 2, 3]
+
+    def test_mixed_column(self):
+        df = pd.DataFrame({"col": ["Alice", "null", "Bob", "n/a", "Carol"]})
+        result = NullNormalizer().apply(df)
+        assert result["col"].iloc[0] == "Alice"
+        assert result["col"].iloc[1] is None
+        assert result["col"].iloc[2] == "Bob"
+        assert result["col"].iloc[3] is None
+        assert result["col"].iloc[4] == "Carol"
+
+    def test_whitespace_around_null_keyword(self):
+        # "  null  " → strip → "null" → None
+        df = pd.DataFrame({"col": ["  null  "]})
+        result = NullNormalizer().apply(df)
+        assert result["col"].iloc[0] is None
+
+    def test_empty_dataframe(self):
+        df = pd.DataFrame({"col": pd.Series([], dtype=object)})
+        result = NullNormalizer().apply(df)
+        assert len(result) == 0
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 4. StringTrimNormalizer
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestStringTrimNormalizer:
+
+    def test_strips_leading_and_trailing_spaces(self):
+        df = pd.DataFrame({"name": ["  Alice  ", "Bob ", " Carol"]})
+        result = StringTrimNormalizer().apply(df)
+        assert list(result["name"]) == ["Alice", "Bob", "Carol"]
+
+    def test_non_object_columns_untouched(self):
+        df = pd.DataFrame({"score": [1.1, 2.2, 3.3]})
+        result = StringTrimNormalizer().apply(df)
+        assert list(result["score"]) == [1.1, 2.2, 3.3]
+
+    def test_does_not_mutate_original(self):
+        df = pd.DataFrame({"name": ["  Alice  "]})
+        StringTrimNormalizer().apply(df)
+        assert df["name"].iloc[0] == "  Alice  "
+
+    def test_none_in_string_column_survives(self):
+        df = pd.DataFrame({"name": ["Alice", None, " Bob "]})
+        result = StringTrimNormalizer().apply(df)
+        assert result["name"].iloc[0] == "Alice"
+        assert result["name"].iloc[1] is None
+        assert result["name"].iloc[2] == "Bob"
+
+    def test_mixed_dtypes(self):
+        df = pd.DataFrame({
+            "name":  ["  Alice  ", " Bob"],
+            "score": [9.5, 8.0],
+            "flag":  [True, False],
+        })
+        result = StringTrimNormalizer().apply(df)
+        assert list(result["name"])  == ["Alice", "Bob"]
+        assert list(result["score"]) == [9.5, 8.0]
+        assert list(result["flag"])  == [True, False]
+
+    def test_empty_string_stays_empty(self):
+        df = pd.DataFrame({"col": [""]})
+        result = StringTrimNormalizer().apply(df)
+        assert result["col"].iloc[0] == ""
+
+    def test_inner_whitespace_preserved(self):
+        df = pd.DataFrame({"col": ["  hello world  "]})
+        result = StringTrimNormalizer().apply(df)
+        assert result["col"].iloc[0] == "hello world"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 5. normalize()  — full chain
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestNormalizeChain:
+
+    def test_full_chain_applied_in_order(self):
+        df = pd.DataFrame({
+            "First Name ": ["  Alice  ", "null"],
+            "Last-Name":   [" Dupont",  "N/A"],
+        })
+        result = normalize(df)
+
+        # columns normalized
+        assert "first_name" in result.columns
+        assert "last_name"  in result.columns
+
+        # strings trimmed
+        assert result["first_name"].iloc[0] == "Alice"
+        assert result["last_name"].iloc[0]  == "Dupont"
+
+        # null-like values resolved
+        assert result["first_name"].iloc[1] is None
+        assert result["last_name"].iloc[1]  is None
+
+    def test_does_not_mutate_input(self):
+        df = pd.DataFrame({"Col ": ["  val  "]})
+        original_col = list(df.columns)[0]
+        normalize(df)
+        assert list(df.columns)[0] == original_col
+
+    def test_deterministic_same_output_for_same_input(self):
+        df = pd.DataFrame({"First Name ": ["  Alice  ", "null", "Bob"]})
+        r1 = normalize(df)
+        r2 = normalize(df)
+        pd.testing.assert_frame_equal(r1, r2)
+
+    def test_empty_dataframe(self):
+        df = pd.DataFrame()
+        result = normalize(df)
+        assert result.empty
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 6. CSVReader
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestCSVReaderEncoding:
+
+    def test_detect_encoding_returns_string(self, tmp_path):
+        f = tmp_path / "sample.csv"
+        f.write_text("id,name\n1,Alice\n", encoding="utf-8")
+        reader = CSVReader(str(f))
+        enc = reader.detect_encoding()
+        assert isinstance(enc, str)
+        assert len(enc) > 0
+
+    def test_detect_encoding_utf8_file(self, tmp_path):
+        f = tmp_path / "utf8.csv"
+        f.write_text("id,name\n1,Alice\n", encoding="utf-8")
+        reader = CSVReader(str(f))
+        enc = reader.detect_encoding()
+        assert enc.lower().replace("-", "") in ("utf8", "ascii")
+
+    def test_detect_encoding_fallback_when_chardet_returns_none(self, tmp_path):
+        f = tmp_path / "empty.csv"
+        f.write_bytes(b"")
+        with patch("normalizers.chardet.detect", return_value={"encoding": None}):
+            reader = CSVReader(str(f))
+            enc = reader.detect_encoding()
+        assert enc == "utf-8"
+
+
+class TestCSVReaderSeparator:
+
+    def test_detects_comma(self, tmp_path):
+        f = tmp_path / "comma.csv"
+        f.write_text("a,b,c\n1,2,3\n", encoding="utf-8")
+        reader = CSVReader(str(f))
+        assert reader.detect_separator("utf-8") == ","
+
+    def test_detects_semicolon(self, tmp_path):
+        f = tmp_path / "semi.csv"
+        f.write_text("a;b;c\n1;2;3\n", encoding="utf-8")
+        reader = CSVReader(str(f))
+        assert reader.detect_separator("utf-8") == ";"
+
+    def test_detects_tab(self, tmp_path):
+        f = tmp_path / "tab.csv"
+        f.write_text("a\tb\tc\n1\t2\t3\n", encoding="utf-8")
+        reader = CSVReader(str(f))
+        assert reader.detect_separator("utf-8") == "\t"
+
+    def test_detects_pipe(self, tmp_path):
+        f = tmp_path / "pipe.csv"
+        f.write_text("a|b|c\n1|2|3\n", encoding="utf-8")
+        reader = CSVReader(str(f))
+        assert reader.detect_separator("utf-8") == "|"
+
+
+class TestCSVReaderRead:
+
+    def test_read_returns_dataframe(self, tmp_path):
+        f = tmp_path / "data.csv"
+        f.write_text("id,name\n1,Alice\n2,Bob\n", encoding="utf-8")
+        reader = CSVReader(str(f))
+        df = reader.read()
+        assert isinstance(df, pd.DataFrame)
+        assert list(df.columns) == ["id", "name"]
+        assert len(df) == 2
+
+    def test_read_semicolon_delimited(self, tmp_path):
+        f = tmp_path / "semi.csv"
+        f.write_text("id;name\n1;Alice\n2;Bob\n", encoding="utf-8")
+        df = CSVReader(str(f)).read()
+        assert "id" in df.columns
+        assert "name" in df.columns
+
+    def test_keep_default_na_false_preserves_empty_strings(self, tmp_path):
+        # Without keep_default_na=False, pandas converts "" to NaN itself.
+        # CSVReader disables this so NullNormalizer can handle it.
+        f = tmp_path / "nulls.csv"
+        f.write_text("id,name\n1,\n2,Bob\n", encoding="utf-8")
+        df = CSVReader(str(f)).read()
+        # raw read: empty cell should be "" not NaN
+        assert df["name"].iloc[0] == ""
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 7. load_csv()  — end-to-end
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestLoadCSV:
+
+    def test_end_to_end_comma_delimited(self, tmp_path):
+        f = tmp_path / "input.csv"
+        f.write_text(
+            "First Name ,Last-Name,Score\n"
+            "  Alice  ,Dupont,9.5\n"
+            "Bob  ,  null,8.0\n",
+            encoding="utf-8",
+        )
+        df = load_csv(str(f))
+
+        # columns normalized
+        assert list(df.columns) == ["first_name", "last_name", "score"]
+
+        # strings trimmed
+        assert df["first_name"].iloc[0] == "Alice"
+        assert df["last_name"].iloc[0]  == "Dupont"
+
+        # null resolved
+        assert df["last_name"].iloc[1] is None
+
+    def test_end_to_end_semicolon_delimited(self, tmp_path):
+        f = tmp_path / "euro.csv"
+        f.write_text(
+            "Prénom;Âge\nAlice;30\nBob;N/A\n",
+            encoding="utf-8",
+        )
+        df = load_csv(str(f))
+        assert "prenom" in df.columns
+        assert "age"    in df.columns
+        assert df["age"].iloc[1] is None
+
+    def test_returns_dataframe(self, tmp_path):
+        f = tmp_path / "basic.csv"
+        f.write_text("a,b\n1,2\n", encoding="utf-8")
+        result = load_csv(str(f))
+        assert isinstance(result, pd.DataFrame)
+
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////
+
+
+"""
+Unit tests for Layer 2 – Data Level Validation.
+
+Coverage:
+  1. row_count            – match / mismatch / early-exit
+  2. full_dataset_hash    – identical / value changed / row reordered
+  3. column_level_hash    – all match / single mismatch / multiple mismatches
+  4. duplicate_rows       – equal dups / mismatch
+  5. bucketed_checksum    – all match / bucket mismatch localised
+  6. row_aligned_diff     – no pk (skipped) / missing pk col / clean / diffs / limit cap
+  7. _dataset_hash        – order independence / null safety
+  8. _column_hash         – sorted + null-safe
+  9. _bucketed_checksum   – direct helper tests
+ 10. _row_aligned_diff    – direct helper tests
+"""
+from __future__ import annotations
+
+from unittest.mock import MagicMock
+
+import pandas as pd
+import pytest
+
+from core.models import Status, ValidationConfig
+from layers import layer_2_data_level as layer
+
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+
+def make_config(
+    primary_key=None,
+    source_label: str = "source",
+    target_label: str = "target",
+) -> ValidationConfig:
+    cfg = MagicMock(spec=ValidationConfig)
+    cfg.primary_key = primary_key or []
+    cfg.source_label = source_label
+    cfg.target_label = target_label
+    return cfg
+
+
+def check(result, name: str):
+    for c in result.checks:
+        if c.check_name == name:
+            return c
+    raise KeyError(f"Check '{name}' not found.")
+
+
+# ── Fixtures ──────────────────────────────────────────────────────────────────
+
+@pytest.fixture
+def base_df():
+    return pd.DataFrame({
+        "id":    [1, 2, 3, 4, 5],
+        "name":  ["Alice", "Bob", "Carol", "Dave", "Eve"],
+        "score": [9.5, 8.0, 7.2, 6.1, 5.5],
+    })
+
+
+@pytest.fixture
+def cfg():
+    return make_config()
+
+
+@pytest.fixture
+def cfg_with_pk():
+    return make_config(primary_key=["id"])
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 1. row_count
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestRowCount:
+
+    def test_equal_row_counts_passes(self, base_df, cfg):
+        result = layer.run(base_df, base_df.copy(), cfg)
+        c = check(result, "row_count")
+        assert c.status == Status.PASSED
+        assert c.details["delta"] == 0
+
+    def test_target_has_more_rows_fails(self, base_df, cfg):
+        tgt = pd.concat([base_df, base_df.iloc[:2]], ignore_index=True)
+        result = layer.run(base_df, tgt, cfg)
+        c = check(result, "row_count")
+        assert c.status == Status.FAILED
+        assert c.details["source_rows"] == 5
+        assert c.details["target_rows"] == 7
+        assert c.details["delta"] == -2
+
+    def test_target_has_fewer_rows_fails(self, base_df, cfg):
+        tgt = base_df.iloc[:3].copy()
+        result = layer.run(base_df, tgt, cfg)
+        c = check(result, "row_count")
+        assert c.status == Status.FAILED
+        assert c.details["delta"] == 2
+
+    def test_early_exit_on_row_count_failure(self, base_df, cfg):
+        tgt = base_df.iloc[:2].copy()
+        result = layer.run(base_df, tgt, cfg)
+        check_names = [c.check_name for c in result.checks]
+        assert "row_count" in check_names
+        assert "full_dataset_hash" not in check_names
+        assert "column_level_hash" not in check_names
+
+    def test_empty_dataframes_pass(self, cfg):
+        src = pd.DataFrame({"id": [], "name": []})
+        tgt = pd.DataFrame({"id": [], "name": []})
+        result = layer.run(src, tgt, cfg)
+        c = check(result, "row_count")
+        assert c.status == Status.PASSED
+
+    def test_message_contains_delta(self, base_df, cfg):
+        tgt = base_df.iloc[:3].copy()
+        result = layer.run(base_df, tgt, cfg)
+        c = check(result, "row_count")
+        assert "delta=2" in c.message
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 2. full_dataset_hash
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestFullDatasetHash:
+
+    def test_identical_datasets_pass(self, base_df, cfg):
+        result = layer.run(base_df, base_df.copy(), cfg)
+        c = check(result, "full_dataset_hash")
+        assert c.status == Status.PASSED
+        assert c.details["source_hash"] == c.details["target_hash"]
+
+    def test_changed_value_fails(self, base_df, cfg):
+        tgt = base_df.copy()
+        tgt.loc[0, "score"] = 99.9
+        result = layer.run(base_df, tgt, cfg)
+        c = check(result, "full_dataset_hash")
+        assert c.status == Status.FAILED
+        assert c.details["source_hash"] != c.details["target_hash"]
+
+    def test_reordered_rows_still_pass(self, base_df, cfg):
+        # _dataset_hash sorts rows before hashing — order should not matter
+        tgt = base_df.iloc[::-1].reset_index(drop=True)
+        result = layer.run(base_df, tgt, cfg)
+        c = check(result, "full_dataset_hash")
+        assert c.status == Status.PASSED
+
+    def test_added_null_value_fails(self, base_df, cfg):
+        tgt = base_df.copy()
+        tgt.loc[0, "name"] = None
+        result = layer.run(base_df, tgt, cfg)
+        c = check(result, "full_dataset_hash")
+        assert c.status == Status.FAILED
+
+    def test_hash_is_hex_string(self, base_df, cfg):
+        result = layer.run(base_df, base_df.copy(), cfg)
+        c = check(result, "full_dataset_hash")
+        assert len(c.details["source_hash"]) == 64   # SHA-256 hex
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 3. column_level_hash
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestColumnLevelHash:
+
+    def test_all_columns_match(self, base_df, cfg):
+        result = layer.run(base_df, base_df.copy(), cfg)
+        c = check(result, "column_level_hash")
+        assert c.status == Status.PASSED
+        assert c.details["mismatched_columns"] == []
+
+    def test_single_column_mismatch(self, base_df, cfg):
+        tgt = base_df.copy()
+        tgt.loc[0, "score"] = 0.0
+        result = layer.run(base_df, tgt, cfg)
+        c = check(result, "column_level_hash")
+        assert c.status == Status.FAILED
+        assert "score" in c.details["mismatched_columns"]
+        assert "id"    not in c.details["mismatched_columns"]
+        assert "name"  not in c.details["mismatched_columns"]
+
+    def test_multiple_column_mismatches(self, base_df, cfg):
+        tgt = base_df.copy()
+        tgt.loc[0, "score"] = 0.0
+        tgt.loc[1, "name"]  = "CHANGED"
+        result = layer.run(base_df, tgt, cfg)
+        c = check(result, "column_level_hash")
+        assert len(c.details["mismatched_columns"]) == 2
+
+    def test_column_hash_details_present_for_all_columns(self, base_df, cfg):
+        result = layer.run(base_df, base_df.copy(), cfg)
+        c = check(result, "column_level_hash")
+        for col in base_df.columns:
+            assert col in c.details["column_hashes"]
+            assert "source_hash" in c.details["column_hashes"][col]
+            assert "target_hash" in c.details["column_hashes"][col]
+
+    def test_column_reorder_does_not_cause_mismatch(self, base_df, cfg):
+        tgt = base_df[["score", "name", "id"]].copy()  # different column order
+        result = layer.run(base_df, tgt, cfg)
+        c = check(result, "column_level_hash")
+        assert c.status == Status.PASSED
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 4. duplicate_rows
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestDuplicateRows:
+
+    def test_no_duplicates_in_either_passes(self, base_df, cfg):
+        result = layer.run(base_df, base_df.copy(), cfg)
+        c = check(result, "duplicate_rows")
+        assert c.status == Status.PASSED
+        assert c.details["source_duplicates"] == 0
+        assert c.details["target_duplicates"] == 0
+
+    def test_equal_duplicate_counts_passes(self, base_df, cfg):
+        dup_df = pd.concat([base_df, base_df.iloc[:2]], ignore_index=True)
+        result = layer.run(dup_df, dup_df.copy(), cfg)
+        c = check(result, "duplicate_rows")
+        assert c.status == Status.PASSED
+
+    def test_target_has_extra_duplicates_fails(self, base_df, cfg):
+        tgt = pd.concat([base_df, base_df.iloc[:1]], ignore_index=True)
+        result = layer.run(base_df, tgt, cfg)
+        # row_count fails first → early exit; test with equal-length df
+        src_dup = pd.concat([base_df, base_df.iloc[:1]], ignore_index=True)
+        tgt_dup = pd.concat([base_df, base_df.iloc[:2]], ignore_index=True)
+        # still row count mismatch; craft same-length frames
+        src2 = pd.concat([base_df, base_df.iloc[:1]], ignore_index=True)  # 6 rows, 1 dup
+        row = pd.DataFrame([{"id": 99, "name": "Zed", "score": 1.0}])
+        tgt2 = pd.concat([base_df, row], ignore_index=True)               # 6 rows, 0 dups
+        result2 = layer.run(src2, tgt2, cfg)
+        c = check(result2, "duplicate_rows")
+        assert c.status == Status.FAILED
+        assert c.details["source_duplicates"] == 1
+        assert c.details["target_duplicates"] == 0
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 5. bucketed_checksum
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestBucketedChecksum:
+
+    def test_identical_datasets_no_bucket_issues(self, base_df, cfg):
+        result = layer.run(base_df, base_df.copy(), cfg)
+        c = check(result, "bucketed_checksum")
+        assert c.status == Status.PASSED
+        assert c.details["mismatched_buckets"] == []
+
+    def test_changed_value_causes_bucket_mismatch(self, base_df, cfg):
+        tgt = base_df.copy()
+        tgt.loc[0, "score"] = 99.9
+        result = layer.run(base_df, tgt, cfg)
+        c = check(result, "bucketed_checksum")
+        assert c.status == Status.FAILED
+        assert len(c.details["mismatched_buckets"]) >= 1
+
+    def test_bucket_mismatch_details_structure(self, base_df, cfg):
+        tgt = base_df.copy()
+        tgt.loc[0, "name"] = "CHANGED"
+        result = layer.run(base_df, tgt, cfg)
+        c = check(result, "bucketed_checksum")
+        for b in c.details["mismatched_buckets"]:
+            assert "bucket"       in b
+            assert "source_hash"  in b
+            assert "target_hash"  in b
+            assert "source_rows"  in b
+            assert "target_rows"  in b
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 6. row_aligned_diff
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestRowAlignedDiff:
+
+    def test_no_pk_skips_check(self, base_df, cfg):
+        result = layer.run(base_df, base_df.copy(), cfg)
+        c = check(result, "row_aligned_diff")
+        assert c.status == Status.SKIPPED
+        assert c.skipped_reason is not None
+        assert "primary_key" in c.skipped_reason
+
+    def test_missing_pk_column_fails(self, base_df):
+        cfg = make_config(primary_key=["nonexistent_col"])
+        result = layer.run(base_df, base_df.copy(), cfg)
+        c = check(result, "row_aligned_diff")
+        assert c.status == Status.FAILED
+        assert "nonexistent_col" in c.details["missing_pk_cols"]
+
+    def test_no_differences_passes(self, base_df, cfg_with_pk):
+        result = layer.run(base_df, base_df.copy(), cfg_with_pk)
+        c = check(result, "row_aligned_diff")
+        assert c.status == Status.PASSED
+        assert c.details["diff_sample"] == []
+
+    def test_detects_value_change(self, base_df, cfg_with_pk):
+        tgt = base_df.copy()
+        tgt.loc[tgt["id"] == 2, "score"] = 99.9
+        result = layer.run(base_df, tgt, cfg_with_pk)
+        c = check(result, "row_aligned_diff")
+        assert c.status == Status.FAILED
+        assert len(c.details["diff_sample"]) == 1
+        diff_row = c.details["diff_sample"][0]
+        assert diff_row["id"] == 2
+
+    def test_detects_multiple_changed_rows(self, base_df, cfg_with_pk):
+        tgt = base_df.copy()
+        tgt.loc[0, "name"] = "CHANGED"
+        tgt.loc[2, "name"] = "CHANGED"
+        result = layer.run(base_df, tgt, cfg_with_pk)
+        c = check(result, "row_aligned_diff")
+        assert c.status == Status.FAILED
+        assert len(c.details["diff_sample"]) == 2
+
+    def test_diff_capped_at_limit(self):
+        # 25 rows, all names changed — diff output must cap at 20
+        src = pd.DataFrame({
+            "id":    list(range(25)),
+            "name":  [f"Name_{i}" for i in range(25)],
+            "score": [float(i) for i in range(25)],
+        })
+        tgt = src.copy()
+        tgt["name"] = "CHANGED"
+        cfg = make_config(primary_key=["id"])
+        result = layer.run(src, tgt, cfg)
+        c = check(result, "row_aligned_diff")
+        assert len(c.details["diff_sample"]) == 20
+
+    def test_compound_primary_key(self):
+        src = pd.DataFrame({
+            "year":  [2023, 2023, 2024],
+            "month": [1,    2,    1   ],
+            "value": [10,   20,   30  ],
+        })
+        tgt = src.copy()
+        tgt.loc[0, "value"] = 99
+        cfg = make_config(primary_key=["year", "month"])
+        result = layer.run(src, tgt, cfg)
+        c = check(result, "row_aligned_diff")
+        assert c.status == Status.FAILED
+        assert len(c.details["diff_sample"]) == 1
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 7. _dataset_hash  (helper)
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestDatasetHash:
+
+    def test_same_data_same_hash(self, base_df):
+        h1 = layer._dataset_hash(base_df, list(base_df.columns))
+        h2 = layer._dataset_hash(base_df.copy(), list(base_df.columns))
+        assert h1 == h2
+
+    def test_changed_value_changes_hash(self, base_df):
+        tgt = base_df.copy()
+        tgt.loc[0, "score"] = 0.0
+        h1 = layer._dataset_hash(base_df, list(base_df.columns))
+        h2 = layer._dataset_hash(tgt, list(base_df.columns))
+        assert h1 != h2
+
+    def test_row_order_independent(self, base_df):
+        shuffled = base_df.iloc[::-1].reset_index(drop=True)
+        h1 = layer._dataset_hash(base_df, list(base_df.columns))
+        h2 = layer._dataset_hash(shuffled, list(base_df.columns))
+        assert h1 == h2
+
+    def test_null_values_handled(self):
+        df1 = pd.DataFrame({"a": [1, None], "b": ["x", "y"]})
+        df2 = pd.DataFrame({"a": [1, None], "b": ["x", "y"]})
+        h1 = layer._dataset_hash(df1, ["a", "b"])
+        h2 = layer._dataset_hash(df2, ["a", "b"])
+        assert h1 == h2
+
+    def test_null_vs_non_null_differs(self):
+        df1 = pd.DataFrame({"a": [1, None]})
+        df2 = pd.DataFrame({"a": [1, 2]})
+        assert layer._dataset_hash(df1, ["a"]) != layer._dataset_hash(df2, ["a"])
+
+    def test_returns_64_char_hex(self, base_df):
+        h = layer._dataset_hash(base_df, list(base_df.columns))
+        assert len(h) == 64
+        assert all(c in "0123456789abcdef" for c in h)
+
+    def test_col_subset_used(self, base_df):
+        # hashing only ["id"] should differ from hashing all columns
+        h_all = layer._dataset_hash(base_df, list(base_df.columns))
+        h_sub = layer._dataset_hash(base_df, ["id"])
+        assert h_all != h_sub
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 8. _column_hash  (helper)
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestColumnHash:
+
+    def test_same_series_same_hash(self):
+        s = pd.Series([1, 2, 3])
+        assert layer._column_hash(s) == layer._column_hash(s.copy())
+
+    def test_different_values_different_hash(self):
+        s1 = pd.Series([1, 2, 3])
+        s2 = pd.Series([1, 2, 99])
+        assert layer._column_hash(s1) != layer._column_hash(s2)
+
+    def test_order_independent(self):
+        s1 = pd.Series([3, 1, 2])
+        s2 = pd.Series([1, 2, 3])
+        assert layer._column_hash(s1) == layer._column_hash(s2)
+
+    def test_null_values_handled(self):
+        s1 = pd.Series([1, None, 3])
+        s2 = pd.Series([1, None, 3])
+        assert layer._column_hash(s1) == layer._column_hash(s2)
+
+    def test_null_vs_value_differs(self):
+        s1 = pd.Series([1, None])
+        s2 = pd.Series([1, 0])
+        assert layer._column_hash(s1) != layer._column_hash(s2)
+
+    def test_returns_64_char_hex(self):
+        h = layer._column_hash(pd.Series(["a", "b", "c"]))
+        assert len(h) == 64
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 9. _bucketed_checksum  (helper)
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestBucketedChecksumHelper:
+
+    def test_identical_returns_empty(self, base_df):
+        cols = list(base_df.columns)
+        issues = layer._bucketed_checksum(base_df, base_df.copy(), cols, bucket_count=5)
+        assert issues == []
+
+    def test_changed_value_returns_mismatch(self, base_df):
+        tgt = base_df.copy()
+        tgt.loc[0, "score"] = 999.0
+        cols = list(base_df.columns)
+        issues = layer._bucketed_checksum(base_df, tgt, cols, bucket_count=5)
+        assert len(issues) >= 1
+
+    def test_mismatch_entry_has_expected_keys(self, base_df):
+        tgt = base_df.copy()
+        tgt.loc[0, "name"] = "CHANGED"
+        cols = list(base_df.columns)
+        issues = layer._bucketed_checksum(base_df, tgt, cols, bucket_count=5)
+        for issue in issues:
+            for key in ("bucket", "source_hash", "target_hash", "source_rows", "target_rows"):
+                assert key in issue
+
+    def test_bucket_count_one(self, base_df):
+        tgt = base_df.copy()
+        tgt.loc[0, "score"] = 0.0
+        cols = list(base_df.columns)
+        issues = layer._bucketed_checksum(base_df, tgt, cols, bucket_count=1)
+        assert len(issues) == 1
+        assert issues[0]["bucket"] == 0
+
+    def test_reordered_rows_no_mismatch(self, base_df):
+        tgt = base_df.iloc[::-1].reset_index(drop=True)
+        cols = list(base_df.columns)
+        issues = layer._bucketed_checksum(base_df, tgt, cols, bucket_count=5)
+        assert issues == []
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 10. _row_aligned_diff  (helper)
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestRowAlignedDiffHelper:
+
+    def test_no_diff_returns_empty(self, base_df):
+        diff = layer._row_aligned_diff(
+            base_df, base_df.copy(), list(base_df.columns), ["id"]
+        )
+        assert diff.empty
+
+    def test_detects_single_changed_cell(self, base_df):
+        tgt = base_df.copy()
+        tgt.loc[tgt["id"] == 3, "name"] = "CHANGED"
+        diff = layer._row_aligned_diff(
+            base_df, tgt, list(base_df.columns), ["id"]
+        )
+        assert len(diff) == 1
+        assert diff.iloc[0]["id"] == 3
+
+    def test_suffixes_applied(self, base_df):
+        tgt = base_df.copy()
+        tgt.loc[0, "score"] = 0.0
+        diff = layer._row_aligned_diff(
+            base_df, tgt, list(base_df.columns), ["id"]
+        )
+        assert "score_src" in diff.columns
+        assert "score_tgt" in diff.columns
+
+    def test_limit_caps_output(self):
+        src = pd.DataFrame({
+            "id":    list(range(30)),
+            "value": [float(i) for i in range(30)],
+        })
+        tgt = src.copy()
+        tgt["value"] = 0.0
+        diff = layer._row_aligned_diff(src, tgt, ["id", "value"], ["id"], limit=10)
+        assert len(diff) == 10
+
+    def test_pk_only_rows_excluded_from_diff_mask(self):
+        # If only PK cols exist, non_pk list is empty → diff_mask stays False → empty result
+        src = pd.DataFrame({"id": [1, 2, 3]})
+        tgt = pd.DataFrame({"id": [1, 2, 3]})
+        diff = layer._row_aligned_diff(src, tgt, ["id"], ["id"])
+        assert diff.empty
+
+    def test_compound_pk(self):
+        src = pd.DataFrame({
+            "year":  [2023, 2024],
+            "month": [1, 1],
+            "val":   [10, 20],
+        })
+        tgt = src.copy()
+        tgt.loc[0, "val"] = 99
+        diff = layer._row_aligned_diff(
+            src, tgt, ["year", "month", "val"], ["year", "month"]
+        )
+        assert len(diff) == 1
+        assert diff.iloc[0]["year"] == 2023
+
+    def test_unmatched_pk_rows_excluded(self):
+        src = pd.DataFrame({"id": [1, 2, 3], "val": [10, 20, 30]})
+        tgt = pd.DataFrame({"id": [1, 2, 9], "val": [10, 20, 99]})  # id=9 not in src
+        diff = layer._row_aligned_diff(src, tgt, ["id", "val"], ["id"])
+        # id=3 and id=9 are unmatched; inner join excludes them → only matched rows checked
+        matched_ids = diff["id"].tolist()
+        assert 3 not in matched_ids
+        assert 9 not in matched_ids
