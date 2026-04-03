@@ -1,50 +1,24 @@
 """
 pipeline/inferred_csv_loader.py
 --------------------------------
-Drop-in replacement for SchemaManager + CSVIngester when no DDL schema
-files are available.
+Replaces SchemaManager + CSVIngester when no DDL schema files are available.
 
-Instead of requiring a pre-declared schema for every input table, this
-class scans a directory for CSV files, infers column names and types
-directly from each file, and loads them into the database in one step.
+Scans a directory for CSV files, infers column names directly from headers,
+and loads each file into the database as a table named after the file stem.
 
 Design decisions
 ----------------
-- All columns are loaded as TEXT (same philosophy as CSVIngester) so
-  PostgreSQL — not pandas — handles type coercion in the SQL script.
-- Column names are normalised to lowercase and stripped of whitespace,
-  matching the behaviour of the original CSVIngester.
-- Tables are always fully replaced (if_exists="replace") so repeated
-  runs start from a clean slate without needing a prior DROP.
-- The table name is derived from the CSV filename without extension
-  (e.g. "orders.csv" → table "orders"), exactly as before.
-- Output tables created by the SQL script are dropped before loading
-  so stale data from previous runs cannot accumulate. This mirrors
-  SchemaManager.drop_tables(sql_path=...).
-
-What is NOT done here
----------------------
-- No column validation against a declared schema (there is none).
-- No primary-key or constraint DDL (tables are plain TEXT columns).
-- No SchemaManager or TableSchema objects are produced; the executor's
-  ExecutionResult.schemas field will be an empty list when this loader
-  is used.
-
-Usage (standalone)
-------------------
-    from pipeline.inferred_csv_loader import InferredCSVLoader
-
-    loader = InferredCSVLoader(engine)
-    loader.load(data_dir=Path("data"), sql_path=Path("transform.sql"))
-
-Usage (via SQLExecutor)
------------------------
-    executor = SQLExecutor.from_csv_only(
-        engine   = engine,
-        sql_path = Path("transform.sql"),
-        data_dir = Path("data"),
-    )
-    result = executor.execute()
+- All columns are loaded as TEXT — type coercion stays in PostgreSQL,
+  not pandas. This matches the original CSVIngester philosophy.
+- Column names are normalised to lowercase and stripped of whitespace.
+- Tables are always replaced (if_exists="replace") so every run starts
+  from a clean slate with no prior DROP required.
+- Output tables created by the SQL script are dropped before input CSVs
+  are loaded, preventing stale rows from a previous run leaking in.
+  Table detection is delegated to SQLRunner.created_tables() so the
+  regex logic lives in exactly one place.
+- Table names are validated against a safe-identifier pattern before
+  being used in SQL — prevents injection through malicious filenames.
 """
 from __future__ import annotations
 
@@ -56,8 +30,6 @@ from loguru import logger
 from sqlalchemy import Engine, text
 
 
-# Regex copied from schema_manager._SAFE_IDENTIFIER so table names derived
-# from filenames are validated before being used in raw SQL.
 _SAFE_IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
@@ -81,21 +53,19 @@ class InferredCSVLoader:
         """
         Load every *.csv in data_dir into the database.
 
-        Steps performed:
-          1. Drop output tables named in sql_path (if provided) so stale
-             data from a previous run cannot leak into the new execution.
-          2. For each CSV file found, derive the table name from the
-             filename, normalise column headers, and upsert the table
-             using if_exists="replace".
+        Steps:
+          1. Drop output tables detected in sql_path (via SQLRunner)
+             so stale rows from previous runs cannot survive.
+          2. For each CSV, derive the table name from the filename,
+             normalise headers, and write to DB with if_exists="replace".
 
         Parameters
         ----------
         data_dir:
             Directory containing input CSV files.
         sql_path:
-            Path to the SQL transformation script. When provided, any
-            table named in a CREATE TABLE statement is dropped first.
-            This mirrors SchemaManager.drop_tables(sql_path=sql_path).
+            Path to the SQL transformation script. When provided, tables
+            named in CREATE TABLE statements are dropped before loading.
 
         Returns
         -------
@@ -105,20 +75,19 @@ class InferredCSVLoader:
         Raises
         ------
         ValueError
-            If a CSV filename produces an unsafe table name
-            (e.g. "my-file.csv" → "my-file" is not a valid SQL identifier).
+            If a CSV filename produces an unsafe SQL identifier.
         """
-        data_dir = Path(data_dir)
+        data_dir  = Path(data_dir)
         csv_files = sorted(data_dir.glob("*.csv"))
 
         if not csv_files:
             logger.warning(f"No CSV files found in {data_dir}")
             return []
 
-        logger.info(f"InferredCSVLoader: found {len(csv_files)} CSV file(s) in {data_dir}")
+        logger.info(
+            f"InferredCSVLoader: {len(csv_files)} CSV file(s) found in {data_dir}"
+        )
 
-        # Drop SQL-created output tables before loading inputs so a fresh
-        # run never reads rows from a previous execution.
         if sql_path:
             self._drop_output_tables(sql_path)
 
@@ -132,35 +101,54 @@ class InferredCSVLoader:
 
     # ── Internal ─────────────────────────────────────────────────
 
+    def _drop_output_tables(self, sql_path: Path) -> None:
+        """
+        Drop tables that the SQL script will recreate, so stale output
+        rows from a previous run cannot survive into the next execution.
+
+        Delegates table-name detection to SQLRunner.created_tables()
+        so the parsing logic lives in exactly one place.
+        """
+        # Late import avoids a circular dependency
+        # (SQLRunner imports nothing from this module).
+        from pipeline.sql_runner import SQLRunner
+
+        tables = SQLRunner.created_tables_from_path(sql_path)
+        if not tables:
+            return
+
+        with self.engine.begin() as conn:
+            for table in sorted(tables):
+                conn.execute(text(f'DROP TABLE IF EXISTS "{table}" CASCADE'))
+                logger.debug(f"  dropped output table: {table}")
+
     def _table_name_from(self, csv_path: Path) -> str:
         """
-        Derive and validate a table name from a CSV filename.
+        Derive and validate a SQL table name from a CSV filename stem.
 
-        'orders.csv'        → 'orders'
-        'My Orders.csv'     → ValueError  (space)
-        'my-orders.csv'     → ValueError  (hyphen)
+        'orders.csv'     → 'orders'       ✓
+        'my-orders.csv'  → ValueError     (hyphen not allowed)
+        '1table.csv'     → ValueError     (starts with digit)
         """
-        name = csv_path.stem  # filename without extension
+        name = csv_path.stem
         if not _SAFE_IDENTIFIER.fullmatch(name):
             raise ValueError(
-                f"CSV filename '{csv_path.name}' produces an unsafe table name "
-                f"'{name}'. Rename the file to use only letters, digits, and "
-                f"underscores, starting with a letter or underscore."
+                f"CSV filename '{csv_path.name}' produces an unsafe table "
+                f"name '{name}'. Rename the file using only letters, digits, "
+                f"and underscores, starting with a letter or underscore."
             )
         return name
 
     def _load_one(self, csv_path: Path, table_name: str) -> None:
         """
-        Read a single CSV and write it to the database.
+        Read one CSV and write it to the database.
 
-        - All columns are kept as TEXT (dtype=str) — type coercion is
-          PostgreSQL's responsibility, not pandas'.
-        - if_exists="replace" guarantees a clean table on every run
-          without needing a prior explicit DROP.
+        - dtype=str keeps all values as TEXT — PostgreSQL handles casting.
+        - keep_default_na=False prevents pandas from silently converting
+          empty strings to NaN.
+        - if_exists="replace" guarantees a clean table on every run.
         """
         df = pd.read_csv(csv_path, dtype=str, keep_default_na=False)
-
-        # Normalise headers: strip whitespace + lowercase
         df.columns = [c.strip().lower() for c in df.columns]
 
         df.to_sql(
@@ -175,31 +163,3 @@ class InferredCSVLoader:
             f"  {csv_path.name:<40} → '{table_name}' "
             f"({len(df):,} rows, {len(df.columns)} columns)"
         )
-
-    def _drop_output_tables(self, sql_path: Path) -> None:
-        """
-        Drop tables that the SQL script creates (detected via regex on
-        CREATE TABLE statements) so stale output rows from a previous
-        run cannot survive into the next execution.
-
-        Mirrors the sql_path branch of SchemaManager.drop_tables().
-        """
-        if not sql_path.exists():
-            return
-
-        sql = sql_path.read_text(encoding="utf-8")
-        found = re.findall(
-            r'CREATE\s+(?:TEMP\s+)?TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?'
-            r'(?:"?([A-Za-z_][A-Za-z0-9_]*)"?\.)?'
-            r'"?([A-Za-z_][A-Za-z0-9_]*)"?',
-            sql,
-            re.IGNORECASE,
-        )
-
-        if not found:
-            return
-
-        with self.engine.begin() as conn:
-            for _, table in found:
-                conn.execute(text(f'DROP TABLE IF EXISTS "{table}" CASCADE'))
-                logger.debug(f"  dropped output table: {table}")
