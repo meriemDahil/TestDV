@@ -3,25 +3,25 @@ pipeline/executor.py
 ---------------------
 SQLExecutor — the thin orchestrator.
 
-Wires SchemaManager + CSVIngester + SQLRunner + OutputManager
-into a single pipeline. Contains NO business logic of its own.
+Wires InferredCSVLoader + SQLRunner + OutputManager into a single
+pipeline. No DDL schema files are required — table structure is
+inferred directly from CSV headers.
 
 Every dependency is injected so the executor is fully testable:
-  - Pass a SQLite engine → no PostgreSQL needed
+  - Pass a SQLite engine  → no PostgreSQL needed
   - Pass a mock validator → no real SQL checking
   - Pass a temp output_dir → no real files written
 
 Usage
 -----
-from pipeline.models      import make_postgres_engine
-from pipeline.executor    import SQLExecutor
+from pipeline.models   import make_postgres_engine
+from pipeline.executor import SQLExecutor
 
 engine = make_postgres_engine(user="...", password="...")
 
 executor = SQLExecutor.from_paths(
     engine   = engine,
     sql_path = Path("sql_scripts/transformations.sql"),
-    ddl_dir  = Path("ddl"),
     data_dir = Path("data"),
 )
 
@@ -35,8 +35,6 @@ from loguru import logger
 from sqlalchemy import Engine
 
 from pipeline.models              import ExecutionResult
-from pipeline.schema_manager      import SchemaManager
-from pipeline.csv_ingester        import CSVIngester
 from pipeline.sql_runner          import SQLRunner
 from pipeline.output_manager      import OutputManager
 from pipeline.inferred_csv_loader import InferredCSVLoader
@@ -44,119 +42,47 @@ from pipeline.inferred_csv_loader import InferredCSVLoader
 
 class SQLExecutor:
     """
-    Orchestrates the full SQL transformation pipeline.
+    Orchestrates the SQL transformation pipeline without DDL schema files.
 
     Parameters
     ----------
-    schema_manager:  SchemaManager  — load / drop / create tables
-    csv_ingester:    CSVIngester    — load CSV rows into tables
-    sql_runner:      SQLRunner      — validate + execute SQL script
-    output_manager:  OutputManager  — save CSVs + persist to DB
-    sql_path:        Path           — the transformation SQL file
-    ddl_dir:         Path           — schema CSV directory
-    data_dir:        Path           — input CSV data directory
+    inferred_loader: InferredCSVLoader — scans CSVs, drops stale output
+                                         tables, loads inputs into DB
+    sql_runner:      SQLRunner         — validates + executes SQL script
+    output_manager:  OutputManager     — saves CSVs + persists to DB
+    sql_path:        Path              — the transformation SQL file
+    data_dir:        Path              — directory containing input CSVs
     """
 
     def __init__(
         self,
-        schema_manager:  SchemaManager | None,
-        csv_ingester:    CSVIngester   | None,
+        inferred_loader: InferredCSVLoader,
         sql_runner:      SQLRunner,
         output_manager:  OutputManager,
         sql_path:        Path,
-        ddl_dir:         Path | None,
         data_dir:        Path,
-        inferred_loader: InferredCSVLoader | None = None,
     ):
-        self._schema_manager  = schema_manager
-        self._csv_ingester    = csv_ingester
+        self._inferred_loader = inferred_loader
         self._sql_runner      = sql_runner
         self._output_manager  = output_manager
-        self._inferred_loader = inferred_loader
         self.sql_path         = Path(sql_path)
-        self.ddl_dir          = Path(ddl_dir) if ddl_dir else None
         self.data_dir         = Path(data_dir)
 
-    # ── Factory — convenience constructor ─────────────────────────
+    # ── Factory ───────────────────────────────────────────────────
 
     @classmethod
     def from_paths(
         cls,
-        engine:              Engine,
-        sql_path:            Path,
-        ddl_dir:             Path,
-        data_dir:            Path,
-        output_dir:          Path | None  = None,
-        validation_log_path: Path | None  = None,
-        error_log_path:      Path | None  = None,
-        sql_validator=       None,
-        schema_loader=       None,
+        engine:            Engine,
+        sql_path:          Path,
+        data_dir:          Path,
+        output_dir:        Path | None = None,
+        issue_report_path: Path | None = None,
+        sql_validator=     None,
     ) -> "SQLExecutor":
         """
         Build a fully wired SQLExecutor from paths and an engine.
-        All components are instantiated with sensible defaults.
-
-        Parameters
-        ----------
-        engine:
-            SQLAlchemy Engine (PostgreSQL or SQLite for tests).
-        sql_path:
-            Path to the SQL transformation script.
-        ddl_dir:
-            Directory containing schema CSVs (one per table).
-        data_dir:
-            Directory containing input CSV data files.
-        output_dir:
-            Where to write output CSVs. Defaults to data_dir.
-        validation_log_path:
-            Path for validation JSON log. Defaults to data/validation_log.json.
-        error_log_path:
-            Path for error JSON log. Defaults to data/error_log.json.
-        sql_validator:
-            Optional override for the SQL validator callable.
-        schema_loader:
-            Optional override for the schema loader callable.
-        """
-        data_dir   = Path(data_dir)
-        output_dir = Path(output_dir) if output_dir else data_dir
-
-        return cls(
-            schema_manager  = SchemaManager(engine, schema_loader=schema_loader),
-            csv_ingester    = CSVIngester(engine),
-            sql_runner      = SQLRunner(
-                engine              = engine,
-                sql_validator       = sql_validator,
-                validation_log_path = validation_log_path or data_dir / "validation_log.json",
-                error_log_path      = error_log_path      or data_dir / "error_log.json",
-            ),
-            output_manager  = OutputManager(engine, output_dir=output_dir),
-            sql_path        = sql_path,
-            ddl_dir         = ddl_dir,
-            data_dir        = data_dir,
-        )
-
-    @classmethod
-    def from_csv_only(
-        cls,
-        engine:              Engine,
-        sql_path:            Path,
-        data_dir:            Path,
-        output_dir:          Path | None = None,
-        validation_log_path: Path | None = None,
-        error_log_path:      Path | None = None,
-        sql_validator=       None,
-    ) -> "SQLExecutor":
-        """
-        Build a SQLExecutor that needs NO DDL schema files.
-
-        Use this when you have CSV input files but no pre-declared table
-        schemas. Table structure is inferred directly from CSV headers.
-
-        The pipeline differs from the standard execute() as follows:
-          - No DDL dir required
-          - SchemaManager and CSVIngester are bypassed entirely
-          - InferredCSVLoader scans data_dir, creates tables on the fly,
-            and loads all CSVs in one step
+        No DDL schema files required.
 
         Parameters
         ----------
@@ -165,13 +91,12 @@ class SQLExecutor:
         sql_path:
             Path to the SQL transformation script.
         data_dir:
-            Directory containing input CSV files (no DDL dir needed).
+            Directory containing input CSV files.
         output_dir:
             Where to write output CSVs. Defaults to data_dir.
-        validation_log_path:
-            Path for validation JSON log. Defaults to data/validation_log.json.
-        error_log_path:
-            Path for error JSON log. Defaults to data/error_log.json.
+        issue_report_path:
+            Where to write the validation/error JSON report.
+            Defaults to data_dir/validation_report.json.
         sql_validator:
             Optional override for the SQL validator callable.
         """
@@ -179,19 +104,15 @@ class SQLExecutor:
         output_dir = Path(output_dir) if output_dir else data_dir
 
         return cls(
-            schema_manager  = None,
-            csv_ingester    = None,
-            sql_runner      = SQLRunner(
-                engine              = engine,
-                sql_validator       = sql_validator,
-                validation_log_path = validation_log_path or data_dir / "validation_log.json",
-                error_log_path      = error_log_path      or data_dir / "error_log.json",
-            ),
-            output_manager  = OutputManager(engine, output_dir=output_dir),
-            sql_path        = sql_path,
-            ddl_dir         = None,
-            data_dir        = data_dir,
             inferred_loader = InferredCSVLoader(engine),
+            sql_runner      = SQLRunner(
+                engine            = engine,
+                sql_validator     = sql_validator,
+                issue_report_path = issue_report_path or data_dir / "validation_report.json",
+            ),
+            output_manager  = OutputManager(engine, output_dir=output_dir),
+            sql_path        = sql_path,
+            data_dir        = data_dir,
         )
 
     # ── Main entry point ──────────────────────────────────────────
@@ -204,45 +125,33 @@ class SQLExecutor:
         """
         Run the full pipeline end to end:
 
-          1. Load schemas from ddl/*.csv
-          2. Drop all managed tables (clean slate)
-          3. Create tables from schema DDL
-          4. Load input CSVs into tables
-          5. Validate + execute transformation SQL
-          6. Preview results (optional)
-          7. Save CSVs + persist to DB (optional)
+          1. Drop stale output tables (tables created by the SQL script)
+          2. Load all CSVs from data_dir into the database
+          3. Validate + execute the SQL transformation script
+          4. Preview results (optional)
+          5. Save output CSVs + persist to DB (optional)
 
         Parameters
         ----------
         persist_to_db:
-            Write output DataFrames to PostgreSQL. Default True.
+            Write output DataFrames back to PostgreSQL. Default True.
         preview:
             Print a console preview of output tables. Default True.
 
         Returns
         -------
         ExecutionResult
-            Contains the loaded schemas and all output DataFrames.
+            Contains an empty schemas list and all output DataFrames.
         """
         _banner("PostgreSQL SQL EXECUTOR")
 
-        # ── Steps 1-4: prepare the database ───────────────────────
-        if self._inferred_loader is not None:
-            # Schema-free mode: infer table structure from CSV headers.
-            # SchemaManager and CSVIngester are not used.
-            self._inferred_loader.load(self.data_dir, sql_path=self.sql_path)
-            schemas = []
-        else:
-            # Standard mode: DDL schemas drive table creation + CSV loading.
-            schemas = self._schema_manager.load_schemas(self.ddl_dir)
-            self._schema_manager.drop_tables(schemas, sql_path=self.sql_path)
-            self._schema_manager.create_tables(schemas)
-            self._csv_ingester.load(self.data_dir, schemas)
+        # ── Steps 1-2: prepare the database ───────────────────────
+        self._inferred_loader.load(self.data_dir, sql_path=self.sql_path)
 
-        # ── Step 5: run the SQL ────────────────────────────────────
+        # ── Step 3: validate + execute the SQL ────────────────────
         output_tables = self._sql_runner.run(self.sql_path)
 
-        # ── Step 6-7: present and persist results ─────────────────
+        # ── Steps 4-5: present and persist results ─────────────────
         if preview:
             self._output_manager.preview(output_tables)
 
@@ -253,7 +162,7 @@ class SQLExecutor:
 
         _banner("DONE")
 
-        return ExecutionResult(schemas=schemas, output_tables=output_tables)
+        return ExecutionResult(schemas=[], output_tables=output_tables)
 
 
 # ─────────────────────────────────────────────
