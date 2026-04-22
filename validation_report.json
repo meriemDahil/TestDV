@@ -1718,3 +1718,294 @@ class TestBenchAgent(GeneralAgent):
             f"Erreur TestBenchAgent: timed out after {max_retries} attempts. "
             f"Last error: {str(last_error)}"
         )
+
+
+
+
+
+
+
+
+
+#!/usr/bin/env python3
+import json
+import asyncio
+from typing import List
+
+from agents import AgentOutputSchema
+from openai import APITimeoutError
+
+from migration_factory_backend.services.general_agent import GeneralAgent
+from migration_factory_backend.config.test_bench_agent_conf import (
+    AGENT_NAME,
+    INSTRUCTIONS,
+    DEFAULT_ROWS,
+)
+from migration_factory_backend.modules.test_bench.test_bench_agent_IO_model import (
+    ColumnSchema,
+    TableResult,
+    TestBenchAgentIO,
+    TestBenchAgentInputModel,
+    TestBenchAgentOutputModel,
+)
+from src.migration_factory_backend.utils.logger import initLogger
+
+
+class TestBenchAgent(GeneralAgent):
+    logger = initLogger("TestBenchAgent")
+
+    def __init__(self) -> None:
+        super().__init__(
+            agent_name=AGENT_NAME,
+            instructions=INSTRUCTIONS,
+            io_model=AgentOutputSchema(TestBenchAgentOutputModel, strict_json_schema=False),
+        )
+        self.agent.tools = []
+        self.agent_io = TestBenchAgentIO(
+            input=TestBenchAgentInputModel(specification_content="")
+        )
+
+    def build_prompt(
+        self,
+        json_data: dict,
+        num_rows: int = DEFAULT_ROWS,
+        used_tables: list[str] = None,
+        input_tables: list[str] = None,
+        output_tables: list[str] = None,
+    ) -> str:
+        """
+        Build a single prompt covering all tables in one shot so the agent can
+        keep foreign keys, shared business keys, and derived columns consistent.
+
+        Call modes:
+          - used_tables only            → no input/output distinction (legacy mode,
+                                          all tables treated as passthrough)
+          - input_tables + output_tables → full data-flow context; agent knows which
+                                          tables are sources and which are targets
+          - all three                   → input/output_tables take precedence;
+                                          used_tables is ignored
+        """
+        json_spec = json.dumps(json_data, indent=2, ensure_ascii=False)
+
+        # Resolve the final table sets
+        if input_tables or output_tables:
+            # Rich mode: caller explicitly separated sources from targets
+            input_tables  = input_tables  or []
+            output_tables = output_tables or []
+        else:
+            # Legacy mode: used_tables only — treat everything as passthrough
+            input_tables  = used_tables or []
+            output_tables = []
+
+        all_tables = list(dict.fromkeys(input_tables + output_tables))
+
+        input_list  = "\n".join(f"  - {t}" for t in input_tables)  or "  (none)"
+        output_list = "\n".join(f"  - {t}" for t in output_tables) or "  (none)"
+        all_list    = "\n".join(f"  - {t}" for t in all_tables)
+
+        return f"""
+    INPUT SPECIFICATION (JSON):
+    {json_spec}
+
+    TARGET ENVIRONMENT: POSTGRESQL
+    - DATES: Use 'YYYY-MM-DD'
+    - TIMESTAMPS: Use 'YYYY-MM-DD HH:MM:SS'
+    - BOOLEANS: Use lowercase 'true' or 'false'
+    - NUMERIC: Use dot as decimal separator
+
+    ========================
+    DATA FLOW
+    ========================
+    SOURCE / INPUT tables  (raw data that enters the migration):
+    {input_list}
+
+    TARGET / OUTPUT tables (transformed data produced by the migration):
+    {output_list}
+
+    ========================
+    TASK REQUIREMENTS
+    ========================
+    Generate consistent test data for ALL of the following tables:
+    {all_list}
+
+    Rules:
+    1. Generate EXACTLY {num_rows} rows per table.
+    2. Keep table names EXACTLY as listed above.
+    3. For SOURCE tables:
+       - input_data      = the raw rows fed into the migration.
+       - expected_output = IDENTICAL copy of input_data (no transformation on the source side).
+    4. For TARGET tables:
+       - input_data      = the rows the migration is expected to produce (derived from the source data above).
+       - expected_output = IDENTICAL copy of that input_data.
+    5. If a table appears in both SOURCE and TARGET, treat it as passthrough:
+       expected_output = IDENTICAL copy of input_data.
+    6. CRITICAL — cross-table consistency:
+       - Foreign keys in any table MUST reference real primary-key values present in the related table.
+       - Shared business keys (e.g. customer_id, order_id) MUST carry the same values across all tables.
+       - Derived / computed columns in target tables MUST be correctly calculated from the source rows.
+    7. model_data must always contain valid column definitions and must NEVER be empty.
+
+    ========================
+    OUTPUT FORMAT (STRICT JSON ONLY)
+    ========================
+    {{
+      "tables": [
+        {{
+          "table_name": "source_customers",
+          "model_data": [
+            {{ "column": "id",   "type": "SERIAL", "constraint": "PRIMARY KEY" }},
+            {{ "column": "name", "type": "TEXT",   "constraint": "NOT NULL"    }}
+          ],
+          "input_data":      [{{ "id": 1, "name": "Alice" }}],
+          "expected_output": [{{ "id": 1, "name": "Alice" }}]
+        }},
+        {{
+          "table_name": "target_customers",
+          "model_data": [
+            {{ "column": "source_id",    "type": "INT",  "constraint": "NOT NULL" }},
+            {{ "column": "display_name", "type": "TEXT", "constraint": "NOT NULL" }}
+          ],
+          "input_data":      [{{ "source_id": 1, "display_name": "ALICE" }}],
+          "expected_output": [{{ "source_id": 1, "display_name": "ALICE" }}]
+        }}
+      ]
+    }}
+    """.strip()
+
+    def _parse_response(self, content: str) -> dict:
+        """
+        Extracts valid JSON from the LLM response, ignoring extra text or Markdown fences.
+        """
+        if isinstance(content, dict):
+            return content
+
+        if hasattr(content, "model_dump"):
+            return content.model_dump()
+
+        content = str(content).strip()
+
+        # Remove Markdown fences
+        if content.startswith("```"):
+            lines = content.splitlines()
+            content = "\n".join(
+                line for line in lines if not line.strip().startswith("```")
+            ).strip()
+
+        # Keep only the first {...} block to avoid extra trailing text
+        first_brace = content.find("{")
+        last_brace  = content.rfind("}")
+        if first_brace == -1 or last_brace == -1:
+            raise ValueError(f"Cannot find JSON in agent output:\n{content}")
+
+        content = content[first_brace: last_brace + 1]
+
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError as e:
+            raise ValueError(
+                f"Invalid JSON returned by agent: {str(e)}\nContent:\n{content}"
+            )
+
+    async def run(
+        self,
+        json_input: dict,
+        num_rows: int = DEFAULT_ROWS,
+        used_tables: list[str] = None,
+        input_tables: list[str] = None,
+        output_tables: list[str] = None,
+    ) -> TestBenchAgentOutputModel:
+        """
+        Parameters
+        ----------
+        json_input    : migration specification
+        num_rows      : number of rows to generate per table
+        used_tables   : all table names when there is no input/output distinction (legacy)
+        input_tables  : source/raw table names  — data going INTO the migration
+        output_tables : target table names       — data coming OUT of the migration
+
+        If input_tables / output_tables are provided they take precedence over
+        used_tables and give the agent full data-flow context so it can keep
+        foreign keys, shared keys, and derived columns consistent across tables.
+        """
+        # Resolve the master list the same way build_prompt does
+        if input_tables or output_tables:
+            resolved_input  = input_tables  or []
+            resolved_output = output_tables or []
+        else:
+            resolved_input  = used_tables or []
+            resolved_output = []
+
+        all_tables = list(dict.fromkeys(resolved_input + resolved_output))
+
+        if not all_tables:
+            self.logger.warning("[TestBenchAgent] No tables provided; returning empty output.")
+            self.agent_io.output = TestBenchAgentOutputModel(tables=[])
+            return self.agent_io.output
+
+        # One prompt — full data flow visible to the agent
+        prompt = self.build_prompt(
+            json_input,
+            num_rows,
+            used_tables=used_tables,
+            input_tables=input_tables,
+            output_tables=output_tables,
+        )
+
+        self.agent_io.input = TestBenchAgentInputModel(
+            specification_content=json.dumps(json_input, ensure_ascii=False)
+        )
+
+        max_retries = 3
+        last_error  = None
+
+        for attempt in range(max_retries):
+            try:
+                raw_output = await self.runAgent(prompt)
+                parsed = self._parse_response(raw_output)
+
+                tables_payload = parsed.get("tables", [])
+                if not isinstance(tables_payload, list):
+                    raise ValueError("Le champ 'tables' doit être une liste.")
+
+                result_tables: List[TableResult] = []
+                for table_item in tables_payload:
+                    if not isinstance(table_item, dict):
+                        raise ValueError("Chaque table doit être un objet JSON.")
+
+                    model_data_raw = table_item.get("model_data", [])
+                    if not model_data_raw:
+                        raise ValueError(
+                            f"model_data vide pour la table "
+                            f"{table_item.get('table_name', 'unknown')}"
+                        )
+
+                    model_data = [ColumnSchema(**col) for col in model_data_raw]
+                    result_tables.append(
+                        TableResult(
+                            table_name=table_item["table_name"],
+                            model_data=model_data,
+                            input_data=table_item.get("input_data", []),
+                            expected_output=table_item.get("expected_output", []),
+                            error=table_item.get("error", ""),
+                        )
+                    )
+
+                self.agent_io.output = TestBenchAgentOutputModel(tables=result_tables)
+                return self.agent_io.output
+
+            except APITimeoutError as e:
+                last_error = e
+                wait = 5 * (attempt + 1)
+                self.logger.warning(
+                    f"[TestBenchAgent] Timeout on attempt {attempt + 1}/{max_retries}, "
+                    f"retrying in {wait}s..."
+                )
+                await asyncio.sleep(wait)
+
+            except Exception as e:
+                raise RuntimeError(f"Erreur TestBenchAgent: {str(e)}")
+
+        raise RuntimeError(
+            f"Erreur TestBenchAgent: timed out after {max_retries} attempts. "
+            f"Last error: {str(last_error)}"
+        )
