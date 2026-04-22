@@ -1251,3 +1251,203 @@ class TestRowAlignedDiffHelper:
         matched_ids = diff["id"].tolist()
         assert 3 not in matched_ids
         assert 9 not in matched_ids
+
+
+
+
+
+
+
+
+
+
+
+
+
+#!/usr/bin/env python3
+import json
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+import json
+from agents import AgentOutputSchema
+from openai import APITimeoutError
+from pydantic import BaseModel, Field
+from migration_factory_backend.services.general_agent import GeneralAgent
+from migration_factory_backend.config.test_bench_agent_conf import (
+    AGENT_NAME,
+    INSTRUCTIONS,
+    DEFAULT_ROWS
+)
+from migration_factory_backend.modules.test_bench.test_bench_agent_IO_model import ColumnSchema, TableResult, \
+    TestBenchAgentIO, TestBenchAgentInputModel, TestBenchAgentOutputModel
+import asyncio
+
+from src.migration_factory_backend.utils.logger import initLogger
+
+
+class TestBenchAgent(GeneralAgent):
+    logger = initLogger("TestBenchAgent")
+
+    def __init__(self) -> None:
+        super().__init__(
+            agent_name=AGENT_NAME,
+            instructions=INSTRUCTIONS,
+            io_model=AgentOutputSchema(TestBenchAgentOutputModel, strict_json_schema=False)
+        )
+
+        self.agent.tools = []
+
+        self.agent_io = TestBenchAgentIO(
+            input=TestBenchAgentInputModel(specification_content="")
+        )
+
+    def build_prompt(self, json_data: dict, num_rows: int = DEFAULT_ROWS, used_tables: list[str] = None) -> str:
+        json_spec = json.dumps(json_data, indent=2, ensure_ascii=False)
+
+        tables_instruction = ""
+        if used_tables:
+            tables_list = "\n".join(f"  - {t}" for t in used_tables)
+            tables_instruction = f"""
+    MANDATORY TABLES — You MUST generate data for ALL of these tables, no exception:
+    {tables_list}
+    If you already generated a table don't generate it again.
+    """
+
+        return f"""
+    INPUT SPECIFICATION (JSON):
+    {json_spec}
+
+    TARGET ENVIRONMENT: POSTGRESQL
+    - DATES: Use 'YYYY-MM-DD'
+    - TIMESTAMPS: Use 'YYYY-MM-DD HH:MM:SS'
+    - BOOLEANS: Use lowercase 'true' or 'false'
+    - NUMERIC: Use dot as decimal separator
+
+    ========================
+    TASK REQUIREMENTS
+    ========================
+    {tables_instruction}
+    1. Generate data for EVERY table listed above in MANDATORY TABLES.
+    2. Keep table names EXACTLY as provided.
+    3. Generate EXACTLY {num_rows} rows per table.
+    4. For each table, return: table_name, model_data (NEVER empty), input_data, expected_output.
+    5. expected_output MUST be IDENTICAL to input_data — a direct copy, no transformations.
+    6. model_data must always contain valid column definitions.
+
+    ========================
+    OUTPUT FORMAT (STRICT JSON ONLY)
+    ========================
+    {{
+    "tables": [
+        {{
+        "table_name": "my_table",
+        "model_data": [
+            {{ "column": "id", "type": "SERIAL", "constraint": "PRIMARY KEY" }},
+            {{ "column": "signup_date", "type": "DATE", "constraint": "NOT NULL" }}
+        ],
+        "input_data": [
+            {{ "id": 1, "signup_date": "2023-04-15" }}
+        ],
+        "expected_output": [
+            {{ "id": 1, "signup_date": "2023-04-15" }}
+        ]
+        }}
+    ]
+    }}
+    """.strip()
+
+    def _parse_response(self, content: str) -> dict:
+        """
+        Extracts valid JSON from the LLM response, ignoring extra text or Markdown fences.
+        """
+        if isinstance(content, dict):
+            return content
+
+        if hasattr(content, "model_dump"):
+            return content.model_dump()
+
+        content = str(content).strip()
+
+        # Remove Markdown fences
+        if content.startswith("```"):
+            lines = content.splitlines()
+            content = "\n".join(line for line in lines if not line.strip().startswith("```")).strip()
+
+        # Keep only the first {...} block to avoid extra text
+        first_brace = content.find("{")
+        last_brace = content.rfind("}")
+        if first_brace == -1 or last_brace == -1:
+            raise ValueError(f"Cannot find JSON in agent output:\n{content}")
+
+        content = content[first_brace: last_brace + 1]
+
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON returned by agent: {str(e)}\nContent:\n{content}")
+
+    async def run(self, json_input: dict, num_rows: int = DEFAULT_ROWS, used_tables: list[str] = None) -> TestBenchAgentOutputModel:
+        if not used_tables:
+            self.logger.warning("[TestBenchAgent] No tables provided in used_tables; returning empty output.")
+            self.agent_io.output = TestBenchAgentOutputModel(tables=[])
+            return self.agent_io.output
+
+        # Send ALL tables in a single prompt so the agent can keep foreign keys
+        # and shared values consistent across tables.
+        prompt = self.build_prompt(json_input, num_rows, used_tables=used_tables)
+
+        self.agent_io.input = TestBenchAgentInputModel(
+            specification_content=json.dumps(json_input, ensure_ascii=False)
+        )
+
+        max_retries = 3
+        last_error = None
+
+        for attempt in range(max_retries):
+            try:
+                raw_output = await self.runAgent(prompt)
+                parsed = self._parse_response(raw_output)
+
+                tables_payload = parsed.get("tables", [])
+                if not isinstance(tables_payload, list):
+                    raise ValueError("Le champ 'tables' doit être une liste.")
+
+                all_tables: List[TableResult] = []
+                for table_item in tables_payload:
+                    if not isinstance(table_item, dict):
+                        raise ValueError("Chaque table doit être un objet JSON.")
+
+                    model_data_raw = table_item.get("model_data", [])
+                    if not model_data_raw:
+                        raise ValueError(f"model_data vide pour la table {table_item.get('table_name', 'unknown')}")
+
+                    model_data = [ColumnSchema(**col) for col in model_data_raw]
+                    all_tables.append(
+                        TableResult(
+                            table_name=table_item["table_name"],
+                            model_data=model_data,
+                            input_data=table_item.get("input_data", []),
+                            expected_output=table_item.get("expected_output", []),
+                            error=table_item.get("error", ""),
+                        )
+                    )
+
+                self.agent_io.output = TestBenchAgentOutputModel(tables=all_tables)
+                return self.agent_io.output
+
+            except APITimeoutError as e:
+                last_error = e
+                wait = 5 * (attempt + 1)
+                self.logger.warning(
+                    f"[TestBenchAgent] Timeout on attempt {attempt + 1}/{max_retries}, "
+                    f"retrying in {wait}s..."
+                )
+                await asyncio.sleep(wait)
+
+            except Exception as e:
+                raise RuntimeError(f"Erreur TestBenchAgent: {str(e)}")
+
+        raise RuntimeError(
+            f"Erreur TestBenchAgent: timed out after {max_retries} attempts. "
+            f"Last error: {str(last_error)}"
+        )
