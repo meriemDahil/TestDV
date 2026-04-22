@@ -1,0 +1,66 @@
+# ─────────────────────────────────────────────
+    # 3. Test Bench
+    # ─────────────────────────────────────────────
+    _notify_step(on_step_change, 2, "running")
+    logger.info("Launching Test Bench Pipeline (DataGenAgent + SimulationAgent)...")
+    agent_start = datetime.now().isoformat(sep=" ", timespec="milliseconds")
+
+    try:
+        used_tables = extract_used_tables_names(talend_specs)
+        test_bench_error = await run_test_bench_agent(
+            pydantic_input=talend_specs,
+            output_path=run_path / "output" / "output_test_bench_agent",
+            rows=10,
+            used_tables=used_tables
+        )
+        agent_end = datetime.now().isoformat(sep=" ", timespec="milliseconds")
+
+        if test_bench_error == 1:
+            # Log both sub-agents as failed
+            run_logger.update_agent(
+                agent_name="data_gen_agent",
+                creation_timestamp=agent_start,
+                end_timestamp=agent_end,
+                status="failed",
+                error_details="Test bench pipeline returned error code 1",
+                output_path=str(run_path / "output" / "output_test_bench_agent" / "DataGenAgent"),
+            )
+            run_logger.update_agent(
+                agent_name="simulation_agent",
+                creation_timestamp=agent_start,
+                end_timestamp=agent_end,
+                status="failed",
+                error_details="Test bench pipeline returned error code 1",
+                output_path=str(run_path / "output" / "output_test_bench_agent" / "SimulationAgent"),
+            )
+            run_logger.update_run(
+                creation_timestamp=orch_start,
+                end_timestamp=agent_end,
+                status="failed",
+                error_details="Test Bench pipeline failed",
+            )
+            run_logger.flush_to_db()
+            logger.error("Test Bench pipeline failed. Stopping pipeline.")
+            return None
+
+        # Log both sub-agents as successful
+        run_logger.update_agent(
+            agent_name="data_gen_agent",
+            creation_timestamp=agent_start,
+            end_timestamp=agent_end,
+            status="success",
+            output_path=str(run_path / "output" / "output_test_bench_agent" / "DataGenAgent"),
+        )
+        run_logger.update_agent(
+            agent_name="simulation_agent",
+            creation_timestamp=agent_start,
+            end_timestamp=agent_end,
+            status="success",
+            output_path=str(run_path / "output" / "output_test_bench_agent" / "SimulationAgent"),
+        )
+        logger.info("Test Bench pipeline ran successfully.")
+        _notify_step(on_step_change, 2, "done")
+
+    except Exception as e:
+        logger.error("An error occurred while running Test Bench pipeline: %s", e)
+        _notify_step(on_step_change, 2, "error")
